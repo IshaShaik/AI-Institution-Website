@@ -1,0 +1,7 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Syllabus</title><link rel="stylesheet" href="style.css"></head><body>
+<div class="topbar"><div><strong>AI Academy</strong></div><div><a href="index.html">Home</a><a href="syllabus.html">Syllabus</a><a href="projects.html">Projects</a><a href="company.html">Company</a><a href="contact.html">Contact</a><a id="loginLink" href="login.html">Login</a></div></div>
+<div class="container"><h1>Course Syllabus</h1><p>Full syllabus available for registered students.</p><a class="btn" id="downloadSyllabus" href="#">Download Full Syllabus</a><div id="loginWarn" class="notice" style="display:none;">Please login to download the full syllabus.</div></div>
+<script>
+document.getElementById("downloadSyllabus").addEventListener("click", function(e){ if (!localStorage.getItem("token")) { e.preventDefault(); document.getElementById("loginWarn").style.display='block'; window.location.href = "login.html"; } else { alert("Starting download (demo)."); } });
+if (localStorage.getItem("token")) { document.getElementById("loginLink").href = "student/dashboard.html"; document.getElementById("loginLink").innerText = "Dashboard"; }
+</script></body></html>

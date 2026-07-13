@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Academy – Program Hub</title>
+    <style>
+        body{ margin:0; font-family:'Segoe UI',Arial,sans-serif; background:#f1f5f9; user-select:none; }
+        .specialization-container { display: flex; flex-direction: row; gap: 20px; width: 100%; margin-top: 20px; font-family: 'Inter', 'Segoe UI', sans-serif; }
+        .info-box { display: flex; align-items: center; background: #ffffff; border: 1px solid #f0f0f0; border-radius: 15px; padding: 20px; flex: 1; box-shadow: 0 10px 25px rgba(0,0,0,0.03); transition: all 0.3s ease; }
+        .info-box:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.08); border-color: #4a90e2; }
+        .icon { font-size: 28px; margin-right: 15px; display: flex; align-items: center; justify-content: center; }
+        .text { display: flex; flex-direction: column; justify-content: center; }
+        .text strong { color: #2d3436; font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+        .text span { color: #636e72; font-size: 12px; font-weight: 400; }
+        .sidebar{ width:230px; height:100vh; background-image: url("https://i.pinimg.com/736x/8a/f2/dd/8af2dddeac28709607bd72fe6ec569ea.jpg"); background-size: cover; background-position: center; position: fixed; color:white; z-index: 1; }
+        .sidebar::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); z-index: -1; }
+        .sidebar h2 { font-size: 22px; padding: 20px; margin-bottom: 10px; color: #ffffff; font-weight: 800; letter-spacing: 1px; }
+        .nav-link { display: block; padding: 14px 25px; color:white; text-decoration: none; font-size: 16px; font-weight: 600; transition: all 0.3s ease; border-left: 4px solid transparent; }
+        .nav-link:hover { background: rgba(255, 255, 255, 0.1); color: #ffffff; }
+        .nav-link.active { background: rgba(59, 130, 246, 0.15); color: #3b82f6; border-left: 4px solid #3b82f6; }
+        .logout { margin-top: 20px; color: #ff4d4d; }
+        .user-profile-card { padding: 15px; margin: 15px; background: rgba(255, 255, 255, 0.1); border-radius: 15px; display: flex; flex-direction: column; align-items: center; gap: 8px; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .profile-circle { width: 65px; height: 65px; border-radius: 50%; border: 3px solid #3b82f6; overflow: hidden; position: relative; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .profile-circle img { width: 100%; height: 100%; object-fit: cover; }
+        .upload-hint { position: absolute; bottom: 0; width: 100%; background: rgba(0,0,0,0.5); color: white; font-size: 9px; text-align: center; padding: 2px 0; opacity: 0; transition: 0.3s; }
+        .profile-circle:hover .upload-hint { opacity: 1; }
+        .main{ margin-left:230px; padding:30px 40px; }
+        .top-bar{ background:white; padding:18px 25px; border-radius:16px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 8px 22px rgba(0,0,0,.08); }
+        select{ padding:10px 14px; border-radius:8px; border:2px solid #2563eb; font-weight:600; }
+        #welcomeBox{ margin-top:25px; background:linear-gradient(135deg,#1e3a8a,#2563eb); color:white; border-radius:22px; padding:28px; display:flex; gap:25px; }
+        #partsBox{ display:flex; flex-direction:column; gap:10px; }
+        .part-card{ background:rgba(255,255,255,.2); padding:12px; border-radius:10px; cursor:pointer; color:white; font-weight:600; text-align:center; }
+        .part-card:hover{ background:white; color:#1e3a8a; }
+        .nav-controls { display: flex; align-items: center; gap: 15px; margin: 18px 0; }
+        .back-btn { background: #2563eb; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; display: none; }
+        .breadcrumb{ font-weight:600; color:#334155; }
+        .card-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:25px; }
+        .video-card{ background:white; border-radius:18px; overflow:hidden; box-shadow:0 10px 25px rgba(0,0,0,.12); cursor:pointer; transition:.3s; }
+        .video-card:hover{transform:translateY(-6px);}
+        .video-thumb{ height:170px; }
+        .video-thumb img{ width:100%; height:100%; object-fit:cover; }
+        /* ===================== MCQ FUTURISTIC DESIGN ===================== */
+
+#mcqOverlay{
+    border: 5px solid  ;
+    position:absolute;          /* 🔥 overlay magic */
+    top:0;
+    left:0;
+    width:620px;
+    height:510px;               /* same as video height */
+    z-index:50;
+
+    display:none;
+    padding:25px;
+
+    
+    background-image: url("https://i.pinimg.com/1200x/1c/06/d3/1c06d3d23106e56157f7ffa3f219fbf6.jpg");
+    background-size: cover;
+    background-position: center;
+    border-radius:14px;
+    box-shadow:0 0 40px rgba(59,130,246,.45);
+    animation: fadeInMCQ .6s ease;
+}
+#mcqOverlay::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:rgba(0,0,0,.55);
+    backdrop-filter: blur(6px);
+    z-index:-1;
+}
+
+
+/* ---------- INTRO SCREEN ---------- */
+
+#mcqIntro{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    height:100%;
+    text-align:center;
+    gap:20px;
+}
+
+#mcqIntro h2{
+    font-size:26px;
+    background: linear-gradient(90deg,#38bdf8,#22c55e);
+    -webkit-background-clip:text;
+    color:transparent;
+}
+
+#mcqIntro button{
+    padding:12px 26px;
+    border-radius:30px;
+    border:none;
+    cursor:pointer;
+    font-weight:700;
+    font-size:15px;
+}
+
+#mcqIntro button:first-child{
+    background:#334155;
+    color:white;
+}
+
+#mcqIntro button:last-child{
+    background:linear-gradient(135deg,#2563eb,#22c55e);
+    color:white;
+}
+
+/* ---------- QUESTION CARD ---------- */
+#mcqContent{
+    width:90%;
+    max-width:780px;
+    height:450px;           /* 🔥 overlay ke andar fit */
+    padding:24px;
+    border-radius:15px;
+
+    background:rgba(255,255,255,.08);
+    box-shadow:0 0 25px rgba(0,0,0,.4);
+    
+         /* 🔥 buttons bahar nahi jayenge */
+}
+/* ===== MCQ THIN SCROLLBAR (PREMIUM LOOK) ===== */
+
+
+
+
+
+
+#questionText{
+    font-size:15px;
+    font-weight: bold;
+    margin-bottom:20px;
+    line-height:1.5;
+}
+
+/* ---------- OPTIONS ---------- */
+#options label{
+    background:rgba(255,255,255,.1);
+    padding:12px 14px;
+    border-radius:14px;
+    margin-bottom:14px;
+    transition:.3s;
+    width:530px;
+}
+
+#options label:hover{
+    background:rgba(37,99,235,.35);
+    transform:translateX(5px);
+}
+
+#options input[type="radio"]{
+    accent-color:#22c55e;
+    transform:scale(1.2);
+}
+
+/* ---------- RESULT ---------- */
+#result{
+    margin-top:15px;
+    font-size:12px;
+}
+
+#explanation{
+    margin-top:18px;
+    background:rgba(34,197,94,.15);
+    padding:14px;
+    border-radius:12px;
+    font-size:12px;
+}
+
+/* ---------- BUTTONS ---------- */
+#submitBtn,#nextBtn{
+    margin-top:20px;
+    padding:12px 26px;
+    border:none;
+    border-radius:30px;
+    font-size:12px;
+    font-weight:700;
+    cursor:pointer;
+    background:linear-gradient(135deg,#2563eb,#38bdf8);
+    color:white;
+    box-shadow:0 0 15px rgba(37,99,235,.5);
+}
+
+#submitBtn:hover,#nextBtn:hover{
+    transform:scale(1.05);
+}
+
+        #playerSection{ display:none; gap:25px; margin:30px 0; align-items:stretch; }
+     #playerLeft{
+    flex:3;
+    background:white;
+    padding:0px;
+    border-radius:20px;
+    position:relative; /* 🔥 IMPORTANT */
+}
+
+        #playerRight{ flex:1; background:#f8fafc; padding:18px; border-radius:20px; height:420px; overflow-y:auto; }
+        .playlist-item{ display:flex; gap:12px; padding:10px; border-radius:12px; cursor:pointer; margin-bottom:6px; }
+        .playlist-item.active{ background:#dbeafe; font-weight:600; }
+        .playlist-item img{ width:80px; height:55px; border-radius:8px; object-fit:cover; }
+       
+    </style>
+</head>
+<body oncontextmenu="return false">
+
+<div class="sidebar">
+    <h2>AI Academy</h2>
+    <nav class="sidebar-nav">
+        <a href="programhub.html" class="nav-link active">Program Hub</a>
+        <a href="dashboard.html" class="nav-link">Student Dashboard</a>
+        <a href="assessment.html" class="nav-link">Assessment</a>
+        <a href="recommendations.html" class="nav-link">Recommendations</a>
+        <a href="schedule.html" class="nav-link">Program Schedule</a>
+        <a href="live.html" class="nav-link">Live</a>
+        <a href="#" class="nav-link logout" onclick="logout()">Logout</a>
+    </nav>
+    <div class="user-profile-card">
+        <div class="profile-circle" onclick="document.getElementById('profileUpload').click()">
+            <img id="sidebarAvatar" alt="Profile">
+            <div class="upload-hint">Change</div>
+        </div>
+        <div class="user-info">
+            <span id="displayUserName" style="color: white; font-weight: bold;"> Hi. </span>
+            <p style="color: #3b82f6; margin: 0;"> Active Learner</p>
+        </div>
+    </div>
+    <input type="file" id="profileUpload" style="display:none" accept="image/*" onchange="uploadPhoto(this)">
+</div>
+
+<div class="main">
+    <div class="top-bar">
+        <strong>Program Hub</strong>
+        <select id="levelSel" onchange="handleLevelChange()"></select>
+    </div>
+
+    <div id="welcomeBox">
+        <div style="flex:2">
+            <h2>Welcome to AI Academy 🚀</h2>
+            <p>Get ready to dive into the world of AI and robotics! Explore, build, and innovate at your own pace.</p>
+        </div>
+        <div id="partsBox"></div>
+    </div>
+
+    <div class="specialization-container">
+        <div class="info-box"><div class="icon">🎓</div><div class="text"><strong>Specialization</strong><span>5 Course Series</span></div></div>
+        <div class="info-box"><div class="icon">🚀</div><div class="text"><strong>Beginner Level</strong><span>No prior experience</span></div></div>
+        <div class="info-box"><div class="icon">⏱️</div><div class="text"><strong>10–11 Hours</strong><span>Total Content</span></div></div>
+        <div class="info-box"><div class="icon">📅</div><div class="text"><strong>Flexible</strong><span>Learn at your own pace</span></div></div>
+    </div>
+
+    <div class="nav-controls">
+        <button id="backBtn" class="back-btn" onclick="goBack()">← Back</button>
+        <div class="breadcrumb" id="breadcrumb"></div>
+    </div>
+
+    <div id="playerSection">
+        <div id="playerLeft">
+            <video id="mainVideo" controls controlsList="nodownload" disablePictureInPicture style="width:100%; height:420px; border-radius:14px; background:black;"></video>
+            <h2 id="videoTitle"></h2>
+            <p id="videoDesc"></p>
+
+            <div id="mcqOverlay">
+    <div id="mcqIntro">
+        <h2>🧠 Quick Knowledge Check</h2>
+        <p style="color: white;">Answer this question to unlock next content</p>
+        <div>
+            <button onclick="skipMCQFunc()">Skip</button>
+            <button onclick="continueMCQFunc()">Start Quiz</button>
+        </div>
+    </div>
+
+    <div id="mcqContent" style="display:none;">
+        <h3 id="questionText" style="color: #FFD700"></h3>
+        <div id="options" style="color: white;font-weight: bold;" ></div>
+
+        <button id="submitBtn">Submit Answer</button>
+        <div id="result"></div>
+        <div id="explanation" style="color: white;"></div>
+        <button id="nextBtn" style="display:none;">Next Question ➜</button>
+    </div>
+</div>
+
+        </div>
+        <div id="playerRight">
+            <h3>Playlist</h3>
+            <div id="playlist"></div>
+        </div>
+    </div>
+    <div id="displayArea" class="card-grid"></div>
+</div>
+
+<script>
+const BASE="http://localhost:8080";
+const ADMIN=BASE+"/admin";
+const STUDENT=BASE+"/student";
+const DEFAULT_AVATAR = "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+
+let CURRENT_VIDEO=null;
+let currentLevelId = null;
+let currentModuleId = null;
+let currentTopicId = null;
+let mcqList=[], mcqIndex=0;
+let currentPartId = null; 
+let navigationHistory = []; 
+
+/* 🔹 LOGOUT */
+function logout(){
+    if(confirm("Logout?")){
+        localStorage.clear();
+        window.location.href = "/indexbackend.html";
+    }
+}
+
+/* 🔹 PROFILE FIX: Yeh login ke baad hamesha dikhega */
+/* --- Sirf ye wala JavaScript part check aur update karein --- */
+
+function initProfile() {
+    const userName = localStorage.getItem("userName");
+    const userPhoto = localStorage.getItem("userPhoto"); 
+    const avatar = document.getElementById("sidebarAvatar");
+    const nameEl = document.getElementById("displayUserName");
+
+    // Name display
+    nameEl.innerText = userName ? "Hi, " + userName : "Hi, Learner";
+
+    // Profile Image Logic
+    if (userPhoto && userPhoto !== "null" && userPhoto !== "undefined" && userPhoto !== "") {
+        // Timestamp (?t=) lagaya hai taaki browser nayi image hi dikhaye
+        avatar.src = BASE + "/images/" + userPhoto + "?t=" + new Date().getTime();
+    } else {
+        // Default image agar user ne apni photo nahi lagayi hai
+        avatar.src = "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+    }
+    
+    // Agar image load hone mein koi dikkat ho toh default dikhao
+    avatar.onerror = function() {
+        this.src = "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+        this.onerror = null; 
+    };
+}
+
+function uploadPhoto(input) {
+    if (!input.files || !input.files[0]) return;
+    
+    const userId = localStorage.getItem("userId");
+    const formData = new FormData();
+    formData.append("file", input.files[0]);
+    formData.append("userId", userId);
+
+    fetch(BASE + "/api/admin/update-profile-pic", { 
+        method: "POST", 
+        body: formData 
+    })
+    .then(r => r.json())
+    .then(d => {
+        // YAHAN FIX HAI: Database se jo status/message aata hai use check karein
+        // Backend usually 'fileName' ya 'photo' property bhejta hai
+        if (d.message === "Success" || d.status === "Success" || d.fileName) {
+            
+            // 1. Naya file name uthayein jo backend ne diya
+            const newPhotoName = d.fileName || d.photo; 
+            
+            // 2. LocalStorage ko update karein (Taki refresh pe bhi dikhe)
+            localStorage.setItem("userPhoto", newPhotoName); 
+            
+            // 3. UI ko refresh karein
+            initProfile(); 
+            
+            alert("Profile image updated successfully!");
+        } else {
+            alert("Upload failed but stored in DB. Please refresh.");
+        }
+    })
+    .catch(err => {
+        console.error("Upload error:", err);
+        alert("Error uploading image.");
+    });
+}
+
+/* 🔹 NAVIGATION & DATA */
+window.onload = async ()=>{
+    initProfile();
+    const r=await fetch(ADMIN+"/levels");
+    const levels=await r.json();
+    const levelSel = document.getElementById("levelSel");
+    levels.forEach((l,i)=>{
+        levelSel.innerHTML+=`<option value="${l.id}" ${i==0?'selected':''}>${l.name}</option>`;
+    });
+    handleLevelChange();
+};
+
+async function handleLevelChange(){
+    const id=document.getElementById("levelSel").value;
+    currentLevelId = id;
+    const r=await fetch(`${ADMIN}/parts?levelId=${id}`);
+    const parts=await r.json();
+    const partsBox = document.getElementById("partsBox");
+    partsBox.innerHTML="";
+    navigationHistory = []; 
+    updateBackButton();
+    parts.forEach(p=>{
+        partsBox.innerHTML+=`<div class="part-card" onclick="loadModules(${p.id},'${p.name}')">${p.name}</div>`;
+    });
+    if(parts.length) loadModules(parts[0].id,parts[0].name);
+}
+
+async function loadModules(id,name, isBack = false){
+    currentPartId = id; 
+    document.getElementById("breadcrumb").innerText="Part : "+name;
+    hidePlayer();
+    if(!isBack) navigationHistory.push({type:'parts', id: id, name: name});
+    updateBackButton();
+    const r=await fetch(`${ADMIN}/modules?partId=${id}`);
+    renderCards(await r.json(), loadTopics, 'MODULE'); 
+}
+
+async function loadTopics(id,name, isBack = false){
+    currentModuleId = id;
+    document.getElementById("breadcrumb").innerText="Module : "+name;
+    hidePlayer();
+    if(!isBack) navigationHistory.push({type:'modules', id: id, name: name});
+    updateBackButton();
+    const r=await fetch(`${ADMIN}/topics?moduleId=${id}`);
+    renderCards(await r.json(), loadVideos, 'TOPIC'); 
+}
+
+async function loadVideos(id,name, isBack = false){
+    document.getElementById("breadcrumb").innerText="Topic : "+name;
+    hidePlayer();
+    if(!isBack) navigationHistory.push({type:'topics', id: id, name: name});
+    updateBackButton();
+    const r=await fetch(`${STUDENT}/videos/${id}`);
+    const v=await r.json();
+    const displayArea = document.getElementById("displayArea");
+    displayArea.innerHTML="";
+    v.forEach(x=>{
+        displayArea.innerHTML+=`
+        <div class="video-card" onclick='openPlayer(${JSON.stringify(x)},${JSON.stringify(v)})'>
+            <div class="video-thumb"><img src="${BASE}/${x.thumbnailPath}"></div>
+            <h3 style="padding:15px">${x.title}</h3>
+        </div>`;
+    });
+}
+
+function renderCards(data, nextFunc, type){
+    const displayArea = document.getElementById("displayArea");
+    displayArea.innerHTML="";
+    data.forEach((i, index) => {
+        let imgUrl;
+        let serialNo = index + 1; 
+
+        if(type === 'MODULE') {
+            if (currentPartId == 1) {
+                switch(serialNo) {
+                    case 1: imgUrl = "https://i.pinimg.com/736x/51/42/be/5142beb719a213ac0d418fc858572595.jpg"; break;
+                    case 2: imgUrl = "https://i.pinimg.com/1200x/4b/e3/08/4be308799a60e30b975caefe8fe61ded.jpg"; break;
+                    case 3: imgUrl = "assets/p1_mod3.jpg"; break;
+                    default: imgUrl = `https://picsum.photos/seed/mod${i.id}/400/250`;
+                }
+            } else { imgUrl = `https://picsum.photos/seed/mod_other${i.id}/400/250`; }
+        } 
+        else if (type === 'TOPIC') {
+            if (currentPartId == 1) {
+                switch(serialNo) {
+                    case 1: imgUrl = "https://i.pinimg.com/736x/cd/db/89/cddb890dc954796bd8d588d54b652a99.jpg"; break;
+                    case 2: imgUrl = "assets/p1_topic2.jpg"; break;
+                    default: imgUrl = `https://picsum.photos/seed/top${i.id}/400/250`;
+                }
+            } else { imgUrl = `https://picsum.photos/seed/top_other${i.id}/400/250`; }
+        }
+
+        displayArea.innerHTML+=`
+            <div class="video-card" onclick="${nextFunc.name}(${i.id},'${i.name}')">
+                <div class="video-thumb"><img src="${imgUrl}" alt="${i.name}"></div>
+                <h3 style="padding:15px">${i.name}</h3>
+            </div>`;
+    });
+}
+
+/* 🔹 VIDEO PLAYER & MCQ LOGIC */
+function openPlayer(video,videos){
+    CURRENT_VIDEO=video;
+    document.getElementById("displayArea").innerHTML = "";
+    document.getElementById("playerSection").style.display="flex";
+    mainVideo.src=BASE+"/"+video.videoPath;
+    document.getElementById("videoTitle").innerText=video.title;
+    document.getElementById("videoDesc").innerText=video.description||"";
+
+    const playlist = document.getElementById("playlist");
+    playlist.innerHTML="";
+    videos.forEach(v=>{
+        playlist.innerHTML+=`
+        <div class="playlist-item ${v.id===video.id?'active':''}" onclick='openPlayer(${JSON.stringify(v)},${JSON.stringify(videos)})'>
+            <img src="${BASE}/${v.thumbnailPath}">
+            <span>${v.title}</span>
+        </div>`;
+    });
+}
+
+const mainVideo = document.getElementById("mainVideo");
+mainVideo.onended = async ()=>{
+    const userId = localStorage.getItem("userId");
+    if(CURRENT_VIDEO && userId){
+        const params = new URLSearchParams();
+        params.append("userId", userId);
+        params.append("videoId", CURRENT_VIDEO.id);
+        params.append("levelId", currentLevelId);
+        params.append("partId", currentPartId);
+        params.append("moduleId", currentModuleId);
+        params.append("topicId", currentTopicId);
+        // CURRENT_VIDEO object se sequenceOrder uthayenge
+        params.append("sequenceOrder", CURRENT_VIDEO.sequenceOrder || 0);
+        await fetch(`${BASE}/api/student/video/complete`,{
+            method:"POST",
+            headers:{"Content-Type":"application/x-www-form-urlencoded"},
+            body:`userId=${userId}&videoId=${CURRENT_VIDEO.id}`
+        });
+    }
+
+    const r=await fetch(`${ADMIN}/mcq/video/${CURRENT_VIDEO.id}`);
+    mcqList=await r.json();
+    mcqIndex=0;
+    
+    if(mcqList && mcqList.length > 0) {
+        document.getElementById("mcqOverlay").style.display="block";
+        document.getElementById("mcqIntro").style.display="block";
+        document.getElementById("mcqContent").style.display="none";
+    }
+};
+
+function skipMCQFunc() { document.getElementById("mcqOverlay").style.display="none"; }
+function continueMCQFunc() {
+    document.getElementById("mcqIntro").style.display="none";
+    showMCQ(mcqIndex);
+}
+function showMCQ(i){
+    if(i >= mcqList.length){ 
+        alert("Quiz Completed!");
+        document.getElementById("mcqOverlay").style.display="none"; 
+        return; 
+    }
+    const q = mcqList[i];
+    document.getElementById("mcqContent").style.display = "block";
+    document.getElementById("questionText").innerText = q.question;
+    
+    const optionsDiv = document.getElementById("options");
+    optionsDiv.innerHTML = "";
+
+    // Mapping: Hum DB ki lowercase keys ko use karenge data nikalne ke liye
+    // Lekin UI par display 'A', 'B' format mein hi hoga
+    const mapping = [
+        { key: "optionA", letter: "A" },
+        { key: "optionB", letter: "B" },
+        { key: "optionC", letter: "C" },
+        { key: "optionD", letter: "D" }
+    ];
+
+    mapping.forEach(opt => {
+        // Agar aapke database mein 'optiona' hai, toh q[opt.key] use hoga
+        // Agar aapne backend change karke 'optionA' kar diya hai, toh q[opt.key.replace('a','A')] try karega
+        let optionValue = q[opt.key] || q[opt.key.charAt(0) + opt.key.slice(1).toUpperCase()];
+
+        if(optionValue && optionValue.trim() !== "") {
+            optionsDiv.innerHTML += `
+                <div style="margin: 10px 0;">
+                    <label style="cursor:pointer; display: flex; align-items: center; gap: 10px;">
+                        <input type="radio" name="opt" value="${opt.letter}"> 
+                        <span><strong>${opt.letter})</strong> ${optionValue}</span>
+                    </label>
+                </div>`;
+        }
+    });
+
+    document.getElementById("result").innerText = "";
+    document.getElementById("explanation").style.display = "none";
+    document.getElementById("nextBtn").style.display = "none";
+    document.getElementById("submitBtn").style.display = "inline-block";
+}
+// --- DATABASE MEIN SAVE KARNE WALA NAYA FUNCTION ---
+async function saveMcqResult(mcqId, selectedOption) {
+    const userId = localStorage.getItem("userId") || 2; 
+    // Aapke controller ke mutabiq URL structure
+    const url = `${BASE}/api/student/mcq/submit?userId=${userId}&mcqId=${mcqId}&selectedOption=${selectedOption}`;
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST'
+        });
+        if (response.ok) {
+            console.log("Success: Score saved to database.");
+        } else {
+            const errorText = await response.text();
+            console.warn("DB Warning:", errorText);
+        }
+    } catch (err) {
+        console.error("Network Error:", err);
+    }
+}
+// SUBMIT BUTTON FIX
+// IS WALE SECTION KO UPDATE KAREIN
+document.getElementById("submitBtn").onclick = function () {
+    const sel = document.querySelector("input[name=opt]:checked");
+    if (!sel) {
+        alert("Please select an option!");
+        return;
+    }
+
+    const q = mcqList[mcqIndex];
+    const res = document.getElementById("result");
+    const expDiv = document.getElementById("explanation");
+    const userSelected = sel.value.trim().toUpperCase();
+
+    // ⚡ YAHAN HAI CHANGE: Database mein save karne ke liye call
+    // Hum user ka selected option database mein bhej rahe hain
+    saveMcqResult(q.id, userSelected);
+
+    const correctAnswerRaw = q.correctOption || q.correct_option;
+    if (!correctAnswerRaw) {
+        alert("Correct answer missing in database!");
+        return;
+    }
+
+    const correctAnswer = correctAnswerRaw.trim().toUpperCase();
+
+    if (userSelected === correctAnswer) {
+        res.innerHTML = "<b style='color:green;'>✅ Correct!</b>";
+    } else {
+        res.innerHTML = `<b style='color:red;'>❌ Wrong</b><br>
+                         <span style='color:#2563eb;'>Correct Option: <b>${correctAnswer}</b></span>`;
+    }
+
+    expDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:black; border-radius:8px;">
+                            <strong>Explanation:</strong> ${q.explanation || "No explanation available"}
+                        </div>`;
+    expDiv.style.display = "block";
+    document.getElementById("nextBtn").style.display = "inline-block";
+    document.getElementById("submitBtn").style.display = "none";
+};
+
+document.getElementById("nextBtn").onclick=()=>showMCQ(++mcqIndex);
+
+function goBack() {
+    if (navigationHistory.length <= 1) return;
+    navigationHistory.pop(); 
+    const lastView = navigationHistory[navigationHistory.length - 1];
+    if (lastView.type === 'parts') loadModules(lastView.id, lastView.name, true);
+    else if (lastView.type === 'modules') loadTopics(lastView.id, lastView.name, true);
+    else if (lastView.type === 'topics') loadVideos(lastView.id, lastView.name, true);
+}
+
+function updateBackButton() { document.getElementById("backBtn").style.display = navigationHistory.length > 1 ? "block" : "none"; }
+function hidePlayer(){ document.getElementById("playerSection").style.display="none"; }
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

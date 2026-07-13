@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+  <head>
+  <meta charset="utf-8">
+  <title>AI Academy — Home</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="topbar">
+  <div>
+    <strong>AI Academy</strong>
+  </div>
+  <div>
+  <a href="index.html">Home</a>
+  <a href="syllabus.html">Syllabus</a>
+  <a href="projects.html">Projects</a>
+  <a href="company.html">Company</a>
+  <a href="contact.html">Contact</a>
+  <a id="loginLink" href="login.html">Login</a>
+</div>
+</div>
+<div class="container">
+  <h1>Learn AI with Real Projects</h1>
+  <p>Public home page: anyone can see this. To access full lessons, please
+     <a href="register.html">register</a> or login.</p>
+<p>
+  <a class="btn" href="syllabus.html">View Syllabus</a>
+   <a class="btn" href="projects.html">Projects</a>
+  </p>
+</div>
+<script> if (localStorage.getItem("token")) { document.getElementById("loginLink").href = "student/dashboard.html"; document.getElementById("loginLink").innerText = "Dashboard"; }</script>
+</body></html>

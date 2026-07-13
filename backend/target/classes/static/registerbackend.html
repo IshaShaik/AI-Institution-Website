@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Register - AI Academy</title>
+</head>
+<body>
+  <h2>Register</h2>
+  <input type="text" id="name" placeholder="Name">
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="pass" placeholder="Password">
+  <input type="text" id="college" placeholder="College / School Name">
+<input type="text" id="class" placeholder="Class (11 / 12)">
+<input type="text" id="section" placeholder="Section (A/B)">
+
+  <button id="registerBtn">Register</button>
+  <div id="msg"></div>
+
+<script>
+document.getElementById("registerBtn").addEventListener("click", async function(){
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+    const pass = document.getElementById("pass").value;
+    const college = document.getElementById("college").value;
+    const studentClass = document.getElementById("class").value;
+    const section = document.getElementById("section").value;
+
+    if(!email || !pass || !name || !college || !studentClass || !section){
+        document.getElementById("msg").innerText = 'Please fill all fields';
+        return;
+    }
+
+    try {
+        const res = await fetch("http://localhost:8080/api/auth/register", {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({
+                name: name,
+                email: email,
+                password: pass,
+                role: "STUDENT",
+                collegeName: college,
+                studentClass: studentClass,
+                section: section
+            })
+        });
+
+        const j = await res.json();
+        document.getElementById("msg").innerText = j.message;
+
+        if(res.ok){
+            window.location.href = "loginbackend.html";
+        }
+
+    } catch(err){
+        console.error(err);
+        document.getElementById("msg").innerText = "Error connecting to server";
+    }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,5 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Assessment</title><link rel="stylesheet" href="../style.css"></head><body>
+<div class="topbar"><div><strong>Assessment</strong></div><div><a href="dashboard.html">Dashboard</a></div></div>
+<div class="container"><h1>Assessment</h1><p>Camera/Audio checks (demo)</p><div style="display:flex; gap:20px;"><div style="flex:1;"><h3>Camera Visual Evaluation</h3><video id="cam" width="320" height="180" autoplay muted></video></div><div style="flex:1;"><h3>Speaker Check</h3><button onclick="alert('Demo: Speaker OK')">Test Speaker</button></div><div style="flex:1;"><h3>Microphone Check</h3><button onclick="alert('Demo: Microphone OK')">Test Mic</button></div></div></div>
+<script src="auth-check.js"></script><script>navigator.mediaDevices && navigator.mediaDevices.getUserMedia({video:true}).then(s=>{document.getElementById('cam').srcObject = s}).catch(e=>{console.log('camera denied', e)});</script>
+</body></html>

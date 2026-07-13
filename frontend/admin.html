@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Academy – Admin Panel</title>
+<link rel="icon" href="https://example.com/favicon.ico" type="image/x-icon">
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+}
+header {
+    background: #020617;
+    padding: 15px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+}
+.container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: auto;
+}
+.card {
+    background: #020617;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.4);
+}
+.card h2 {
+    margin-top: 0;
+    color: #38bdf8;
+}
+input, select, textarea, button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 6px;
+    border: none;
+    outline: none;
+}
+textarea {
+    resize: vertical;
+}
+button {
+    background: #38bdf8;
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+}
+button:hover {
+    background: #0ea5e9;
+}
+.mcq {
+    border: 1px solid #334155;
+    padding: 10px;
+    border-radius: 6px;
+    margin-top: 10px;
+}
+label {
+    font-size: 14px;
+    opacity: 0.8;
+}
+</style>
+</head>
+<body>
+
+<header>AI Academy – Admin Panel</header>
+
+<div class="container">
+
+<!-- LEVEL -->
+<div class="card">
+<h2>Create Level</h2>
+<input id="levelName" placeholder="Level name (eg. Level 1)">
+<button onclick="createLevel()">Create Level</button>
+</div>
+
+<!-- PART -->
+<div class="card">
+<h2>Create Part</h2>
+<select id="partLevel"></select>
+<input id="partName" placeholder="Part name (eg. Part 1)">
+<button onclick="createPart()">Create Part</button>
+</div>
+
+<!-- MODULE -->
+<div class="card">
+<h2>Create Module</h2>
+<select id="modulePart"></select>
+<input id="moduleName" placeholder="Module name">
+<button onclick="createModule()">Create Module</button>
+</div>
+
+<!-- TOPIC -->
+<div class="card">
+<h2>Create Topic</h2>
+<select id="topicModule"></select>
+<input id="topicName" placeholder="Topic name">
+<button onclick="createTopic()">Create Topic</button>
+</div>
+
+<!-- VIDEO + MCQ -->
+<div class="card">
+<h2>Upload Video + MCQs</h2>
+<select id="videoTopic"></select>
+<input placeholder="Video title" id="videoTitle">
+<textarea placeholder="Video description" id="videoDesc"></textarea>
+<label>Thumbnail Image</label>
+<input type="file" id="thumbnail">
+<label>MP4 Video</label>
+<input type="file" id="videoFile" accept="video/mp4">
+<h3>MCQs (3 Questions)</h3>
+<div id="mcqs"></div>
+<button onclick="uploadVideo()">Upload Video</button>
+</div>
+
+</div>
+
+<script>
+const BASE_URL = "http://localhost:8080";
+
+// ------------------ MCQs ------------------
+function optionHtml(q) {
+    return `<div class="mcq">
+        <b>Question ${q}</b>
+        <input placeholder="Question text" class="q">
+        <input placeholder="Option A" class="a">
+        <input placeholder="Option B" class="b">
+        <input placeholder="Option C" class="c">
+        <input placeholder="Option D" class="d">
+        <input placeholder="Correct Option (A/B/C/D)" class="correct">
+        <textarea placeholder="Explanation" class="exp"></textarea>
+    </div>`;
+}
+document.getElementById("mcqs").innerHTML = optionHtml(1) + optionHtml(2) + optionHtml(3);
+
+// ------------------ API CALLS ------------------
+
+// LEVEL
+async function createLevel(){
+    const res = await fetch(BASE_URL+"/admin/levels",{
+        method:"POST",
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({name: levelName.value})
+    });
+    const data = await res.json();
+    alert("Level created with ID: " + data.id);
+    loadLevels();
+}
+
+// PART
+async function createPart(){
+    if(!partLevel.value) { alert("Select Level first"); return; }
+    const res = await fetch(BASE_URL+"/admin/parts",{
+        method:"POST",
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({name: partName.value, levelId: parseInt(partLevel.value)})
+    });
+    const data = await res.json();
+    alert("Part created with ID: " + data.id);
+    loadParts();
+}
+
+// MODULE
+async function createModule(){
+    if(!modulePart.value) { alert("Select a part first"); return; }
+    const res = await fetch(BASE_URL+"/admin/modules",{
+        method:"POST",
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({name: moduleName.value, partId: parseInt(modulePart.value)})
+    });
+    if(!res.ok){
+        const text = await res.text();
+        console.error("Server error:", text);
+        alert("Module creation failed. See console.");
+        return;
+    }
+    const data = await res.json();
+    alert("Module created with ID: " + data.id);
+    loadModules();
+}
+
+// TOPIC
+async function createTopic(){
+    if(!topicModule.value){ alert("Select module first"); return; }
+    const res = await fetch(BASE_URL+"/admin/topics",{
+        method:"POST",
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({name: topicName.value, moduleId: parseInt(topicModule.value)})
+    });
+    if(!res.ok){ const err = await res.text(); console.error(err); alert("Topic creation failed"); return; }
+    const data = await res.json();
+    alert("Topic created with ID: " + data.id);
+    loadTopics();
+}
+
+// VIDEO + MCQ
+async function uploadVideo(){
+    if(!videoTopic.value){ alert("Select Topic"); return; }
+    if(!videoFile.files[0] || !thumbnail.files[0]){ alert("Select video & thumbnail"); return; }
+
+    const mcqs = [];
+    document.querySelectorAll(".mcq").forEach(m=>{
+        mcqs.push({
+            question: m.querySelector(".q").value,
+            optionA: m.querySelector(".a").value,
+            optionB: m.querySelector(".b").value,
+            optionC: m.querySelector(".c").value,
+            optionD: m.querySelector(".d").value,
+            correctOption: m.querySelector(".correct").value,
+            explanation: m.querySelector(".exp").value
+        });
+    });
+
+    const form = new FormData();
+    form.append("title", videoTitle.value);
+    form.append("description", videoDesc.value);
+    // uploadVideo function ke andar is line ko aise likhein:
+form.append("topicId", Number(videoTopic.value));
+    form.append("video", videoFile.files[0]);
+    form.append("thumbnail", thumbnail.files[0]);
+    form.append("mcqsJson", JSON.stringify(mcqs)); // backend compatible
+
+    const res = await fetch(BASE_URL+"/admin/videos",{
+        method:"POST",
+        body: form
+    });
+    alert(res.ok ? "Saved ✅" : "Failed ❌ Check console");
+}
+
+// ------------------ LOAD DROPDOWNS ------------------
+async function loadLevels(){
+    const res = await fetch(BASE_URL+"/admin/levels");
+    const data = await res.json();
+    partLevel.innerHTML = data.map(l=>`<option value="${l.id}">${l.name}</option>`).join("");
+    if(data.length>0){ partLevel.value = data[0].id; loadParts(); }
+}
+
+async function loadParts(){
+    if(!partLevel.value) return;
+    const res = await fetch(BASE_URL+"/admin/parts?levelId="+partLevel.value);
+    const data = await res.json();
+    modulePart.innerHTML = data.map(p=>`<option value="${p.id}">${p.name}</option>`).join("");
+    if(data.length>0){ modulePart.value = data[0].id; loadModules(); }
+}
+
+async function loadModules(){
+    if(!modulePart.value) return;
+    const res = await fetch(BASE_URL+"/admin/modules?partId="+modulePart.value);
+    const data = await res.json();
+    topicModule.innerHTML = `<option value="">Select Module</option>` + data.map(m=>`<option value="${m.id}">${m.name}</option>`).join("");
+}
+
+async function loadTopics(){
+    if(!topicModule.value) return;
+    const res = await fetch(BASE_URL+"/admin/topics?moduleId="+topicModule.value);
+    const data = await res.json();
+    videoTopic.innerHTML = `<option value="">Select Topic</option>` + data.map(t=>`<option value="${t.id}">${t.name}</option>`).join("");
+}
+
+// auto load on page load
+loadLevels();
+
+// change handlers
+partLevel.addEventListener('change', loadParts);
+modulePart.addEventListener('change', loadModules);
+topicModule.addEventListener('change', loadTopics);
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Academy – Admin Panel</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+}
+header {
+    background: #020617;
+    padding: 15px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+}
+.container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: auto;
+}
+.card {
+    background: #020617;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.4);
+}
+.card h2 {
+    margin-top: 0;
+    color: #38bdf8;
+}
+input, select, textarea, button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 6px;
+    border: none;
+    outline: none;
+}
+textarea {
+    resize: vertical;
+}
+button {
+    background: #38bdf8;
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+}
+button:hover {
+    background: #0ea5e9;
+}
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
+    gap: 15px;
+}
+.mcq {
+    border: 1px solid #334155;
+    padding: 10px;
+    border-radius: 6px;
+    margin-top: 10px;
+}
+label {
+    font-size: 14px;
+    opacity: 0.8;
+}
+</style>
+</head>
+
+<body>
+
+<header>AI Academy – Admin Panel</header>
+
+<div class="container">
+
+
+<div class="card">
+<h2>Create Level</h2>
+<input id="levelName" placeholder="Level name (eg. Level 1)">
+<button onclick="createLevel()">Create Level</button>
+</div>
+
+
+<div class="card">
+<h2>Create Part</h2>
+<select id="partLevel"></select>
+<input id="partName" placeholder="Part name (eg. Part 1)">
+<button onclick="createPart()">Create Part</button>
+</div>
+
+
+<div class="card">
+<h2>Create Module</h2>
+<select id="modulePart"></select>
+<input id="moduleName" placeholder="Module name">
+<button onclick="createModule()">Create Module</button>
+</div>
+
+
+<div class="card">
+<h2>Create Topic</h2>
+<select id="topicModule"></select>
+<input id="topicName" placeholder="Topic name">
+<button onclick="createTopic()">Create Topic</button>
+</div>
+
+
+<div class="card">
+<h2>Upload Video + MCQs</h2>
+<select id="videoTopic"></select>
+<input placeholder="Video title" id="videoTitle">
+<textarea placeholder="Video description" id="videoDesc"></textarea>
+<label>Thumbnail Image</label>
+<input type="file" id="thumbnail">
+<label>MP4 Video</label>
+<input type="file" id="videoFile" accept="video/mp4">
+<h3>MCQs (3 Questions)</h3>
+<div id="mcqs"></div>
+<button onclick="uploadVideo()">Upload Video</button>
+</div>
+
+</div>
+
+<script>
+const BASE_URL = "http://localhost:8080";
+
+// ------------------ MCQs ------------------
+function optionHtml(q) {
+return `<div class="mcq">
+<b>Question ${q}</b>
+<input placeholder="Question text" class="q">
+<input placeholder="Option A" class="a">
+<input placeholder="Option B" class="b">
+<input placeholder="Option C" class="c">
+<input placeholder="Option D" class="d">
+<input placeholder="Correct Option (A/B/C/D)" class="correct">
+<textarea placeholder="Explanation" class="exp"></textarea>
+</div>`;
+}
+document.getElementById("mcqs").innerHTML =
+optionHtml(1)+optionHtml(2)+optionHtml(3);
+
+// ------------------ API CALLS ------------------
+
+// LEVEL
+async function createLevel(){
+    const res = await fetch(BASE_URL+"/admin/levels",{
+        method:"POST",
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({name: levelName.value})
+    });
+    const data = await res.json();
+    alert("Level created with ID: " + data.id);
+    loadLevels();
+}
+
+// PART
+async function createPart(){
+    if(!partLevel.value) { alert("Select Level first"); return; }
+    const res = await fetch(BASE_URL+"/admin/parts",{
+        method:"POST",
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({name: partName.value, levelId: parseInt(partLevel.value)})
+    });
+    const data = await res.json();
+    alert("Part created with ID: " + data.id);
+    loadParts();
+}
+
+// MODULE
+async function createModule(){
+    console.log("Selected partId:", modulePart.value); // debug
+    if(!modulePart.value) { alert("Select a part first"); return; }
+
+    const res = await fetch(BASE_URL+"/admin/modules",{
+        method:"POST",
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+            name: moduleName.value,
+            partId: parseInt(modulePart.value)
+        })
+    });
+
+    if(!res.ok){
+        const text = await res.text();
+        console.error("Server error:", text);
+        alert("Module creation failed. See console.");
+        return;
+    }
+
+    const data = await res.json();
+    alert("Module created with ID: " + data.id);
+}
+
+
+// TOPIC
+async function createTopic(){
+
+    if(!topicModule.value){
+        alert("Select module first");
+        return;
+    }
+
+    const res = await fetch(BASE_URL + "/admin/topics", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            name: topicName.value,
+            moduleId: parseInt(topicModule.value)
+        })
+    });
+
+    if(!res.ok){
+        const err = await res.text();
+        console.error(err);
+        alert("Topic create failed");
+        return;
+    }
+
+    const data = await res.json();
+    alert("Topic created with ID: " + data.id);
+
+    loadTopics(); // 🔥 refresh topic dropdown
+}
+
+
+// VIDEO
+async function uploadVideo(){
+
+    const mcqs = [];
+    document.querySelectorAll(".mcq").forEach(m=>{
+        mcqs.push({
+            question: m.querySelector(".q").value,
+            optionA: m.querySelector(".a").value,
+            optionB: m.querySelector(".b").value,
+            optionC: m.querySelector(".c").value,
+            optionD: m.querySelector(".d").value,
+            correctOption: m.querySelector(".correct").value,
+            explanation: m.querySelector(".exp").value
+        });
+    });
+
+    const form = new FormData();
+    form.append("title", videoTitle.value);
+    form.append("description", videoDesc.value);
+    form.append("topicId", videoTopic.value);
+    form.append("video", videoFile.files[0]);
+    form.append("thumbnail", thumbnail.files[0]);
+    form.append("mcqsJson", JSON.stringify(mcqs));
+
+    const res = await fetch("http://localhost:8080/admin/videos",{
+        method:"POST",
+        body: form
+    });
+
+    alert(res.ok ? "Saved ✅" : "Failed ❌");
+}
+
+// ------------------ LOAD DROPDOWNS ------------------
+
+// LEVELS
+async function loadLevels(){
+    const res = await fetch(BASE_URL+"/admin/levels");
+    const data = await res.json();
+    partLevel.innerHTML = data.map(l=>`<option value="${l.id}">${l.name}</option>`).join("");
+    // auto load parts for first level
+    if(data.length>0){ partLevel.value = data[0].id; loadParts(); }
+}
+
+// PARTS (depends on selected Level)
+async function loadParts(){
+    if(!partLevel.value) return;
+    const res = await fetch(BASE_URL+"/admin/parts?levelId="+partLevel.value);
+    const data = await res.json();
+    modulePart.innerHTML = data.map(p=>`<option value="${p.id}">${p.name}</option>`).join("");
+    if(data.length>0){ modulePart.value = data[0].id; loadModules(); }
+}
+
+// MODULES (depends on selected Part)
+async function loadModules(){
+
+    const partId = modulePart.value;   // 🔥 yahi sahi hai
+    if(!partId) return;
+
+    const res = await fetch(
+        BASE_URL + "/admin/modules?partId=" + partId
+    );
+
+    if(!res.ok){
+        console.error("Module API failed");
+        return;
+    }
+
+    const data = await res.json();
+
+    console.log("Modules:", data); // 🔍 DEBUG
+
+    const topicModule = document.getElementById("topicModule");
+
+    topicModule.innerHTML =
+        `<option value="">Select Module</option>` +
+        data.map(m =>
+            `<option value="${m.id}">${m.name}</option>`
+        ).join("");
+}
+
+
+
+
+// TOPICS (depends on selected Module)
+async function loadTopics(){
+    const moduleId = topicModule.value;   // ✅ module id
+    if(!moduleId) return;
+
+    const res = await fetch(BASE_URL + "/admin/topics?moduleId=" + moduleId);
+    const data = await res.json();
+
+    console.log("Topics:", data); // 🔍 DEBUG
+
+    const videoTopic = document.getElementById("videoTopic");
+
+    videoTopic.innerHTML =
+        `<option value="">Select Topic</option>` +
+        data.map(t => `<option value="${t.id}">${t.name}</option>`).join("");
+}
+
+
+// auto load all dropdowns on page load
+loadLevels();
+
+// change handlers
+partLevel.addEventListener('change', loadParts);
+modulePart.addEventListener("change", loadModules);
+topicModule.addEventListener('change', loadTopics);
+
+</script>
+</body>
+</html>
+ -->
+
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Academy – Admin Panel</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+}
+header {
+    background: #020617;
+    padding: 15px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+}
+.container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: auto;
+}
+.card {
+    background: #020617;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.4);
+}
+.card h2 {
+    margin-top: 0;
+    color: #38bdf8;
+}
+input, select, textarea, button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 6px;
+    border: none;
+    outline: none;
+}
+textarea {
+    resize: vertical;
+}
+button {
+    background: #38bdf8;
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+}
+button:hover {
+    background: #0ea5e9;
+}
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
+    gap: 15px;
+}
+.mcq {
+    border: 1px solid #334155;
+    padding: 10px;
+    border-radius: 6px;
+    margin-top: 10px;
+}
+label {
+    font-size: 14px;
+    opacity: 0.8;
+}
+</style>
+</head>
+
+<body>
+
+<header>AI Academy – Admin Panel</header>
+
+<div class="container">
+
+
+<div class="card">
+<h2>Create Level</h2>
+<input id="levelName" placeholder="Level name (eg. Level 1)">
+<button onclick="createLevel()">Create Level</button>
+</div>
+
+
+<div class="card">
+<h2>Create Part</h2>
+<select id="partLevel"></select>
+<input id="partName" placeholder="Part name (eg. Part 1)">
+<button onclick="createPart()">Create Part</button>
+</div>
+
+
+<div class="card">
+<h2>Create Module</h2>
+<select id="modulePart"></select>
+<input id="moduleName" placeholder="Module name">
+<button onclick="createModule()">Create Module</button>
+</div>
+
+
+<div class="card">
+<h2>Create Topic</h2>
+<select id="topicModule"></select>
+<input id="topicName" placeholder="Topic name">
+<button onclick="createTopic()">Create Topic</button>
+</div>
+
+<div class="card">
+<h2>Upload Video + MCQs</h2>
+
+<select id="videoTopic"></select>
+
+<input placeholder="Video title" id="videoTitle">
+<textarea placeholder="Video description" id="videoDesc"></textarea>
+
+<label>Thumbnail Image</label>
+<input type="file" id="thumbnail">
+
+<label>MP4 Video</label>
+<input type="file" id="videoFile" accept="video/mp4">
+
+<h3>MCQs (3 Questions)</h3>
+
+<div id="mcqs"></div>
+
+<button onclick="uploadVideo()">Upload Video</button>
+</div>
+
+</div>
+
+<script>
+const BASE_URL = "http://localhost:8080";
+
+function optionHtml(q) {
+return `
+<div class="mcq">
+<b>Question ${q}</b>
+<input placeholder="Question text" class="q">
+<input placeholder="Option A" class="a">
+<input placeholder="Option B" class="b">
+<input placeholder="Option C" class="c">
+<input placeholder="Option D" class="d">
+<input placeholder="Correct Option (A/B/C/D)" class="correct">
+<textarea placeholder="Explanation" class="exp"></textarea>
+</div>`;
+}
+
+document.getElementById("mcqs").innerHTML =
+optionHtml(1)+optionHtml(2)+optionHtml(3);
+
+/* ---------------- API CALLS ---------------- */
+
+async function createLevel(){
+await fetch(BASE_URL+"/admin/levels",{
+method:"POST",
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({name:levelName.value})
+});
+alert("Level created");
+loadLevels();
+}
+
+async function createPart(){
+    const res = await fetch(BASE_URL+"/admin/parts",{
+        method:"POST",
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+            name: partName.value,
+            levelId: parseInt(partLevel.value)
+        })
+    });
+    const data = await res.json();
+    console.log("Created Part ID:", data.id);
+    alert("Part created with ID: " + data.id);
+    loadParts();
+}
+
+
+// CREATE MODULE
+async function createModule(){
+    const res = await fetch(BASE_URL+"/admin/modules",{
+        method:"POST",
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+            name: moduleName.value,
+            partId: parseInt(modulePart.value)
+        })
+    });
+    const data = await res.json();
+    console.log("Created Module ID:", data.id);
+    alert("Module created with ID: " + data.id);
+    loadModules();
+}
+
+// CREATE TOPIC
+async function createTopic(){
+    const res = await fetch(BASE_URL+"/admin/topics",{
+        method:"POST",
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+            name: topicName.value,
+            moduleId: parseInt(topicModule.value)
+        })
+    });
+    const data = await res.json();
+    console.log("Created Topic ID:", data.id);
+    alert("Topic created with ID: " + data.id);
+    loadTopics();
+}
+async function uploadVideo(){
+const form = new FormData();
+form.append("title", videoTitle.value);
+form.append("description", videoDesc.value);
+form.append("topicId", videoTopic.value);
+form.append("thumbnail", thumbnail.files[0]);
+form.append("video", videoFile.files[0]);
+
+const mcqs = [];
+document.querySelectorAll(".mcq").forEach(m=>{
+mcqs.push({
+question:m.querySelector(".q").value,
+a:m.querySelector(".a").value,
+b:m.querySelector(".b").value,
+c:m.querySelector(".c").value,
+d:m.querySelector(".d").value,
+correct:m.querySelector(".correct").value,
+explanation:m.querySelector(".exp").value
+});
+});
+form.append("mcqs", JSON.stringify(mcqs));
+
+await fetch(BASE_URL+"/admin/videos",{
+method:"POST",
+body:form
+});
+
+alert("Video uploaded successfully");
+}
+
+/* ---------------- LOAD DROPDOWNS ---------------- */
+
+async function loadLevels(){
+const res = await fetch(BASE_URL+"/admin/levels");
+const data = await res.json();
+partLevel.innerHTML = data.map(l=>`<option value="${l.id}">${l.name}</option>`).join("");
+}
+async function loadParts(){
+    const res = await fetch(BASE_URL+"/admin/parts?levelId="+partLevel.value);
+    const data = await res.json();
+    modulePart.innerHTML = data.map(p=>`<option value="${p.id}">${p.name}</option>`).join("");
+}
+
+// LOAD MODULES (based on selected Part)
+async function loadModules(){
+    const partId = modulePart.value;
+    if(!partId) return; // agar empty hai to fetch mat karo
+
+    const res = await fetch(BASE_URL+"/admin/modules?partId="+partId);
+    const data = await res.json();
+
+    // Module dropdown populate
+    topicModule.innerHTML = data.map(m => `<option value="${m.id}">${m.name}</option>`).join("");
+}
+
+async function loadTopics(){
+    const moduleId = topicModule.value;
+    if(!moduleId) return; // agar empty hai to fetch mat karo
+
+    const res = await fetch(BASE_URL+"/admin/topics?moduleId="+moduleId);
+    const data = await res.json();
+    videoTopic.innerHTML = data.map(t=>`<option value="${t.id}">${t.name}</option>`).join("");
+}
+
+loadLevels(); loadParts(); loadModules(); loadTopics();
+</script>
+
+</body>
+</html> -->

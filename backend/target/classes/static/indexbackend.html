@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Academy — Learn AI with Real Projects</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{
+    --bg:#020812;--bg2:#050f1e;--bg3:#071525;
+    --accent:#00d4ff;--accent2:#0066ff;--accent3:#7b2fff;
+    --text:#e8f4ff;--muted:#7a9bb5;--border:rgba(0,212,255,0.15);
+    --card:rgba(7,21,37,0.9);--glow:0 0 20px rgba(0,212,255,0.2);
+  }
+  body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;overflow-x:hidden;min-height:100vh;}
+  
+  /* NAV BAR */
+  nav{position:sticky;top:0;z-index:100;background:rgba(2,8,18,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 2rem;}
+  .nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px;}
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;}
+  .logo{font-family:'Orbitron',monospace;font-size:1.4rem;font-weight:900;color:var(--accent);letter-spacing:2px;}
+  .logo span{color:var(--accent3);}
+  .robot{font-size:1.3rem;}
+  .nav-links{display:flex;gap:0.5rem;align-items:center;}
+  .nav-btn{background:none;border:none;color:var(--muted);font-family:'Exo 2',sans-serif;font-size:0.85rem;padding:0.4rem 0.9rem;border-radius:6px;cursor:pointer;transition:all 0.2s;letter-spacing:0.5px;text-decoration:none;display:inline-flex;align-items:center;}
+  .nav-btn:hover,.nav-btn.active{color:var(--accent);background:rgba(0,212,255,0.08);border:none;}
+  .nav-cta{background:linear-gradient(135deg,var(--accent2),var(--accent3));color:#fff;border:none;font-family:'Exo 2',sans-serif;font-size:0.8rem;padding:0.45rem 1.1rem;border-radius:20px;cursor:pointer;font-weight:600;letter-spacing:0.5px;transition:all 0.2s;text-decoration:none;}
+  .nav-cta:hover{transform:translateY(-1px);box-shadow:0 4px 15px rgba(0,102,255,0.4);}
+
+  /* GRID BG */
+  .grid-bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.03;background-image:linear-gradient(var(--accent) 1px,transparent 1px),linear-gradient(90deg,var(--accent) 1px,transparent 1px);background-size:50px 50px;}
+
+  /* HERO WITH IMAGE SLIDER */
+  .hero {
+    position: relative;
+    min-height: 90vh;
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    align-items: center;
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+    overflow: hidden;
+  }
+  
+  .hero-slider{position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;}
+  .slide{position:absolute;top:0;left:0;width:100%;height:100%;background-size:cover;background-position:center;opacity:0;transition:opacity 1s ease-in-out;}
+  .slide.active{opacity:0.28;} 
+  
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: left;
+    max-width: 700px;
+  }
+  .hero-badge{display:inline-block;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);font-size:0.75rem;letter-spacing:2px;padding:0.4rem 1.2rem;border-radius:20px;margin-bottom:1.5rem;text-transform:uppercase;}
+  .hero-title{font-family:'Orbitron',monospace;font-size:clamp(2rem,4.5vw,3.5rem);font-weight:900;line-height:1.2;margin-bottom:1.5rem;}
+  .hero-title .grad{background:linear-gradient(135deg,var(--accent),var(--accent2),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  
+  .hero-sub {
+    font-size: 1.1rem;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+    margin-left: 0;
+    margin-right: auto;
+  }
+  .hero-age{display:inline-block;background:rgba(123,47,255,0.15);border:1px solid rgba(123,47,255,0.4);color:#c084fc;font-size:0.8rem;padding:0.3rem 1rem;border-radius:20px;margin-bottom:2rem;}
+  
+  .hero-btns {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+  
+  .btn-primary{background:linear-gradient(135deg,var(--accent2),var(--accent3));color:#fff;border:none;font-family:'Exo 2',sans-serif;font-size:0.95rem;padding:0.85rem 2rem;border-radius:8px;cursor:pointer;font-weight:600;transition:all 0.2s;letter-spacing:0.5px;text-decoration:none;display:inline-block;}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,102,255,0.4);}
+  .btn-outline{background:transparent;color:var(--accent);border:1px solid rgba(0,212,255,0.4);font-family:'Exo 2',sans-serif;font-size:0.95rem;padding:0.85rem 2rem;border-radius:8px;cursor:pointer;font-weight:500;transition:all 0.2s;text-decoration:none;display:inline-block;}
+  .btn-outline:hover{background:rgba(0,212,255,0.08);border-color:var(--accent);}
+
+  /* TECH BOXES OVERLAY */
+  .tech-boxes {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-end;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+    margin-top: 0;
+  }
+
+  .tech {
+    background: rgba(7, 21, 37, 0.85);
+    border: 1px solid var(--border);
+    padding: 0.7rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: var(--accent);
+    font-family: 'Orbitron', monospace;
+    box-shadow: var(--glow);
+    width: fit-content;
+    transition: all 0.3s ease;
+  }
+  .tech:hover {
+    border-color: var(--accent);
+    transform: translateX(-5px);
+  }
+
+  /* FLOATING ORBS */
+  .orb{position:absolute;border-radius:50%;filter:blur(60px);animation:float 6s ease-in-out infinite;z-index:1;}
+  .orb1{width:400px;height:400px;background:rgba(0,102,255,0.12);top:-100px;right:-100px;animation-delay:0s;}
+  .orb2{width:300px;height:300px;background:rgba(123,47,255,0.1);bottom:-50px;left:-50px;animation-delay:3s;}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+
+  /* STATS */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;max-width:1100px;margin:3rem auto;padding:0 2rem;position:relative;z-index:2;}
+  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;text-align:center;position:relative;overflow:hidden;transition:all 0.3s;}
+  .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent2),var(--accent3));}
+  .stat-card:hover{transform:translateY(-3px);border-color:rgba(0,212,255,0.3);box-shadow:var(--glow);}
+  .stat-num{font-family:'Orbitron',monospace;font-size:2rem;font-weight:700;color:var(--accent);display:block;}
+  .stat-label{font-size:0.8rem;color:var(--muted);margin-top:0.3rem;letter-spacing:0.5px;}
+
+  /* TICKER CLASS - AUTO SCROLL */
+  .ticker{background:rgba(0,212,255,0.06);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:0.7rem 0;overflow:hidden;white-space:nowrap;position:relative;z-index:2;}
+  .ticker-inner{display:inline-block;animation:ticker 25s linear infinite;}
+  @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  .ticker-item{display:inline-block;margin:0 2rem;font-size:0.8rem;color:var(--accent);letter-spacing:1px;}
+  .ticker-dot{color:var(--accent3);margin:0 0.5rem;}
+
+  /* AUDIENCE STRIP */
+  .audience-strip{background:linear-gradient(135deg,rgba(0,102,255,0.08),rgba(123,47,255,0.08));border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:3rem 2rem;text-align:center;margin:2rem 0;position:relative;z-index:2;}
+  .audience-title{font-family:'Orbitron',monospace;font-size:1.3rem;margin-bottom:0.5rem;}
+  .audience-text{color:var(--muted);max-width:650px;margin:0 auto;line-height:1.7;}
+
+  /* MAIN CONCEPT CARDS */
+  .section{max-width:1100px;margin:0 auto;padding:4rem 2rem;position:relative;z-index:2;}
+  .section-title{font-family:'Orbitron',monospace;font-size:1.5rem;font-weight:700;margin-bottom:0.5rem;text-align:center;}
+  .section-sub{color:var(--muted);text-align:center;margin-bottom:3rem;font-size:0.95rem;}
+  .learn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.8rem;transition:all 0.3s;position:relative;overflow:hidden;}
+  .card:hover{transform:translateY(-4px);border-color:rgba(0,212,255,0.3);box-shadow:var(--glow);}
+  .icon{font-size:2rem;margin-bottom:1rem;display:block;}
+  .card h3{font-weight:600;font-size:1rem;margin-bottom:0.6rem;color:var(--accent);}
+  .card p{color:var(--muted);font-size:0.88rem;line-height:1.7;}
+
+  /* PERFECT FIT 16:9 DYNAMIC VIDEO SECTIONS GRID */
+  .video-section{max-width:1100px;margin:0 auto;padding:2rem 2rem 4rem;position:relative;z-index:2;}
+  
+  .video-grid-custom {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 2rem;
+    margin-top: 1.5rem;
+  }
+  @media(max-width:600px){.video-grid-custom{grid-template-columns:1fr;}}
+
+  .custom-video-box {
+    background: var(--card);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 10px 30px rgba(2, 8, 18, 0.5);
+  }
+  .video-container-wrapper {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%; /* Fixed 16:9 Screen standard Aspect Ratio */
+    background: #000;
+  }
+  .video-container-wrapper video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Prevents stretching and cropping of your thumbnails */
+    border: none;
+  }
+  .video-details-footer {
+    padding: 1.25rem;
+    background: linear-gradient(to bottom, transparent, rgba(5, 15, 30, 0.8));
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .locked-video-content {
+    padding: 3rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 100%;
+    min-height: 320px;
+    background: linear-gradient(135deg, rgba(0, 20, 50, 0.95), rgba(7, 0, 30, 0.95));
+  }
+
+  /* COURSE HIGHLIGHTS */
+  .highlights{max-width:1100px;margin:0 auto;padding:3rem 2rem;background:var(--bg2);border:1px solid var(--border);border-radius:16px;position:relative;z-index:2;}
+  .highlight-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:1.5rem;text-align:center;}
+  @media(max-width:600px){.highlight-grid{grid-template-columns:1fr;}}
+  .left-col p, .right-col p{color:var(--text);font-size:1rem;margin-bottom:0.8rem;letter-spacing:0.5px;}
+
+  /* SITE FOOTER */
+  .site-footer{background:var(--bg3);border-top:1px solid var(--border);padding:3rem 2rem;margin-top:4rem;position:relative;z-index:2;}
+  .footer-inner{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;flex-wrap:wrap;gap:2rem;}
+  .footer-inner .left, .footer-inner .right{flex:1;min-width:280px;}
+  .logo-small{font-family:'Orbitron',monospace;font-size:1.2rem;font-weight:700;color:var(--accent);margin-bottom:0.5rem;}
+  .footer-inner p{color:var(--muted);font-size:0.85rem;line-height:1.6;margin-bottom:0.5rem;}
+  .socials a{color:var(--accent);text-decoration:none;font-size:0.85rem;transition:color 0.2s;}
+  .socials a:hover{color:var(--accent3);}
+
+  /* RESPONSIVE MEDIA CONTROLS */
+  @media(max-width:768px) {
+    .hero {
+      grid-template-columns: 1fr;
+      text-align: center;
+      padding: 3rem 1.5rem;
+    }
+    .hero-content {
+      text-align: center;
+      margin: 0 auto;
+    }
+    .hero-sub {
+      margin-left: auto;
+    }
+    .hero-btns {
+      justify-content: center;
+    }
+    .tech-boxes {
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      margin-top: 2rem;
+    }
+    .tech {
+      font-size: 0.8rem;
+      padding: 0.5rem 1rem;
+    }
+  }
+
+  /* SYSTEM ANIMATIONS */
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+  .pulse{animation:pulse 2s infinite;}
+  .scan{position:relative;overflow:hidden;}
+  .scan::after{content:'';position:absolute;top:-100%;left:0;width:100%;height:100%;background:linear-gradient(transparent,rgba(0,212,255,0.03),transparent);animation:scan 4s linear infinite;}
+  @keyframes scan{to{top:200%}}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<nav>
+  <div class="nav-inner">
+    <a href="indexbackend.html" class="brand">
+      <div class="logo">AI <span class="robot">🤖</span><span>ACADEMY</span></div>
+    </a>
+    <div class="nav-links">
+      <a href="indexbackend.html" class="nav-btn active">Home</a>
+      <a href="syllabus.html" class="nav-btn">Syllabus</a>
+      <a href="projects.html" class="nav-btn">Projects</a>
+      <a href="company.html" class="nav-btn">Company</a>
+      <a href="contact.html" class="nav-btn">Contact</a>
+      <a href="loginbackend.html" class="nav-cta" style="background:transparent; border:1px solid var(--accent); color:var(--accent); margin-right:5px;">Login</a>
+      <a href="contact.html" class="nav-cta">Get Started</a>
+    </div>
+  </div>
+</nav>
+
+<div class="ticker">
+  <div class="ticker-inner">
+    <span class="ticker-item">AI & Robotics Education</span><span class="ticker-dot">◆</span>
+    <span class="ticker-item">For Students 16+ Years</span><span class="ticker-dot">◆</span>
+    <span class="ticker-item">Bangalore, India</span><span class="ticker-dot">◆</span>
+    <span class="ticker-item">Hands-On Projects</span><span class="ticker-dot">◆</span>
+    <span class="ticker-item">Build Real Robots</span><span class="ticker-dot">◆</span>
+    <span class="ticker-item">Learn AI & Machine Learning</span><span class="ticker-dot">◆</span>
+    <span class="ticker-item">AI & Robotics Education</span><span class="ticker-dot">◆</span>
+    <span class="ticker-item">For Students 16+ Years</span><span class="ticker-dot">◆</span>
+    <span class="ticker-item">Bangalore, India</span><span class="ticker-dot">◆</span>
+    <span class="ticker-item">Hands-On Projects</span><span class="ticker-dot">◆</span>
+    <span class="ticker-item">Build Real Robots</span><span class="ticker-dot">◆</span>
+    <span class="ticker-item">Learn AI & Machine Learning</span><span class="ticker-dot">◆</span>
+  </div>
+</div>
+
+<div id="page-home">
+  <div class="hero scan">
+    <div class="hero-slider" id="heroSlider">
+      <div class="slide active" style="background-image:url('images/Ai.png')"></div>
+      <div class="slide" style="background-image:url('images/download.webp')"></div>
+      <div class="slide" style="background-image:url('images/OIP.jpeg')"></div>
+      <div class="slide" style="background-image:url('images/OIP.webp')"></div>
+      <div class="slide" style="background-image:url('images/OIP\ \(1\).jpeg')"></div>
+      <div class="slide" style="background-image:url('images/OIP\ \(2\).webp')"></div>
+      <div class="slide" style="background-image:url('images/OIP\ \(3\).webp')"></div>
+      <div class="slide" style="background-image:url('images/OIP\ \(4\).webp')"></div>
+    </div>
+
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    
+    <div class="hero-content">
+      <div class="hero-badge pulse">🤖 Next-Gen AI & Robotics Academy</div>
+      <h1 class="hero-title">Welcome To AI Academy<br><span class="grad">Learn Artificial Intelligence</span></h1>
+      <div class="hero-age">🎯 Exclusively for Class 11, 12 & Degree Students</div>
+      <p class="hero-sub">100+ Lessons • Real Projects • Quizzes • Certificates. Train real smart models, integrate physical microcontrollers and craft production scale engineering setups.</p>
+      <div class="hero-btns">
+        <a href="loginbackend.html" class="btn-primary">Start Learning</a>
+        <a href="syllabus.html" class="btn-outline">View Syllabus</a>
+      </div>
+    </div>
+
+    <div class="tech-boxes">
+      <div class="tech">AI</div>
+      <div class="tech">IoT</div>
+      <div class="tech">Electronics</div>
+      <div class="tech">Arduino Uno</div>
+      <div class="tech">Robotics</div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat-card"><span class="stat-num">2</span><div class="stat-label">Structured Levels</div></div>
+    <div class="stat-card"><span class="stat-num">10+</span><div class="stat-label">Modules Covered</div></div>
+    <div class="stat-card"><span class="stat-num">50+</span><div class="stat-label">Topics & Concepts</div></div>
+    <div class="stat-card"><span class="stat-num">100%</span><div class="stat-label">Project-Based Learning</div></div>
+  </div>
+
+  <div class="audience-strip">
+    <h2 class="audience-title">Built for the Next Generation of Innovators</h2>
+    <p class="audience-text">Whether you're an engineering student eager to future-proof your career, or a high schooler ready to go beyond entry-level modules — AI Academy gives you the core tools, physical hardware logic, and advanced automation workflows to step up your tech game.</p>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">What Students Will <span style="color:var(--accent)">Learn</span></h2>
+    <p class="section-sub">We don't just teach modules. We make you write production architectures.</p>
+    <div class="learn-grid">
+      <div class="card">
+        <span class="icon">🤖</span>
+        <h3>Artificial Intelligence</h3>
+        <p>Concepts, backend logic, and real architectural model deployment workflows.</p>
+      </div>
+      <div class="card">
+        <span class="icon">🕸️</span>
+        <h3>Machine Learning</h3>
+        <p>Train deep mathematical models, analyze system datasets and build robust real-time predictive systems.</p>
+      </div>
+      <div class="card">
+        <span class="icon">📷</span>
+        <h3>Computer Vision</h3>
+        <p>Advanced real-time image detection tracking, physical matrix mapping and facial profile recognition structures.</p>
+      </div>
+      <div class="card">
+        <span class="icon">🔌</span>
+        <h3>Electronics</h3>
+        <p>Hardware logic design, solid-state breadboard routing, environmental physical component diagnostics.</p>
+      </div>
+      <div class="card">
+        <span class="icon">🟦</span>
+        <h3>Arduino Programming</h3>
+        <p>Physical production scripting, raw assembly configurations, and hardware module control setups on Arduino Uno.</p>
+      </div>
+      <div class="card">
+        <span class="icon">🌐</span>
+        <h3>IoT Ecosystems</h3>
+        <p>Network protocol configurations, edge computing setups, and secure real-time data ingestion models to web dashboards.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" style="padding-top:0;">
+    <div class="highlights">
+      <h2 class="section-title">Course Highlights</h2>
+      <div class="highlight-grid">
+        <div class="left-col">
+          <p>✓ 100+ step-by-step professional video lessons</p>
+          <p>✓ Rigorous project-based hardware development</p>
+        </div>
+        <div class="right-col">
+          <p>✓ Auto-scored algorithmic testing & metrics tracking</p>
+          <p>✓ Fully isolated personal student dashboard portal</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="video-section">
+    <h2 class="section-title">See What You'll <span style="color:var(--accent)">Build</span></h2>
+    <p class="section-sub">A glimpse into the internal AI Academy training models</p>
+    
+    <div class="video-grid-custom">
+      <div class="custom-video-box">
+        <div class="video-container-wrapper">
+          <video id="demoVideo1" controls poster="1.1.png">
+            <source src="1.1Introduction of AI.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+        </div>
+        <div class="video-details-footer">
+          <div>
+            <span style="background: #00ff88; color: #020812; font-size: 0.7rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 4px; text-transform: uppercase; margin-bottom: 0.6rem; display: inline-block; letter-spacing: 0.5px;">
+              🔓 Free Preview
+            </span>
+            <div class="lock-title" style="margin-bottom: 0.4rem; text-align: left; font-size: 1.1rem;">Demo Preview 1 — Level 1 Core Mechanics</div>
+            <p class="lock-text" style="text-align: left; margin-bottom: 0; font-size: 0.85rem; line-height: 1.5;">An in-depth guide on handling sensor data filtering and real-time decision processing systems on breadboards.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="custom-video-box">
+        <div class="locked-video-content">
+          <div class="lock-badge pulse" style="margin-bottom: 1rem;">🔐 Enrolled Students Only</div>
+          <span class="lock-icon" style="font-size: 2.5rem; margin-bottom: 0.5rem;">🎥</span>
+          <div class="lock-title" style="margin-bottom: 0.5rem;">Demo Preview 2 — Level 2 Advanced Automation</div>
+          <p class="lock-text" style="font-size: 0.85rem; line-height: 1.5; margin-bottom: 1.5rem;">Observe complex real-world robotics coordination routines incorporating environmental sensor tracking patterns.</p>
+          <a href="loginbackend.html" class="btn-primary" style="padding: 0.6rem 1.4rem; font-size: 0.85rem; text-decoration: none; display: inline-block; box-shadow: 0 0 15px rgba(123,47,255,0.4);">
+            Login to Unlock Video
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="left">
+      <div class="logo-small">AI Academy</div>
+      <p>© 2026 AI Academy — All rights reserved.</p>
+      <h5 style="color:yellow; font-weight: 600; font-size: 0.9rem; margin: 0.8rem 0 0.3rem;">Learn AI with Real Projects</h5>
+      <p>AI + Electronics + Arduino + IoT — Practical learning built specifically for technical students.</p>
+    </div>
+    <div class="right" style="text-align: right;">
+      <p>Contact: +91-XXXXXXXXXX | email@aiacademy.com</p>
+      <div class="socials" style="margin-top: 0.8rem;">
+        <a href="#">YouTube</a> • <a href="#">Instagram</a> • <a href="#">WhatsApp</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<div id="aiStatus" style="
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  background:black;
+  color:#00ff88;
+  padding:12px 16px;
+  border-radius:12px;
+  font-size:14px;
+  z-index:9999;
+  box-shadow:0 0 15px #00ff88;
+  font-family:'Orbitron', monospace;">
+  🤖 AI ready
+</div>
+
+<button id="aiToggleBtn" onclick="toggleAI()" style="
+  position:fixed;
+  bottom:20px;
+  left:20px;
+  padding:10px 14px;
+  border-radius:10px;
+  border:none;
+  background:#ff4444;
+  color:white;
+  font-size:14px;
+  cursor:pointer;
+  font-weight: 600;
+  z-index:9999;
+  box-shadow: 0 4px 10px rgba(255,68,68,0.3);">
+  🔊 AI Voice ON
+</button>
+
+<script>
+  // 1. HERO AUTOMATIC BACKGROUND IMAGE SLIDER ENGINE
+  const slides = document.querySelectorAll('#heroSlider .slide');
+  let currentSlideIndex = 0;
+
+  function nextSlide() {
+    slides[currentSlideIndex].classList.remove('active');
+    currentSlideIndex = (currentSlideIndex + 1) % slides.length;
+    slides[currentSlideIndex].classList.add('active');
+  }
+  setInterval(nextSlide, 3000);
+
+  // 2. STATISTICAL NUMBER COUNTER INCREMENT LOGIC
+  var counters = document.querySelectorAll('.stat-num');
+  counters.forEach(function(c){
+    var target = c.innerText;
+    var num = parseInt(target);
+    if(isNaN(num)) return;
+    var suffix = target.replace(num, '');
+    var current = 0;
+    var step = Math.ceil(num / 30);
+    var interval = setInterval(function(){
+      current = Math.min(current + step, num);
+      c.innerText = current + suffix;
+      if(current >= num) clearInterval(interval);
+    }, 50);
+  });
+
+  // 3. SPEECH RECOGNITION & VOICE COMMAND LOGIC
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const synth = window.speechSynthesis;
+  const statusBox = document.getElementById("aiStatus");
+
+  function speak(text) {
+    if (localStorage.getItem("aiMute")) return;
+    const msg = new SpeechSynthesisUtterance(text);
+    msg.lang = "en-IN";
+    synth.speak(msg);
+  }
+
+  function toggleAI() {
+    const btn = document.getElementById("aiToggleBtn");
+    if (localStorage.getItem("aiMute")) {
+      localStorage.removeItem("aiMute");
+      btn.innerText = "🔊 AI Voice ON";
+      btn.style.background = "#ff4444";
+    } else {
+      localStorage.setItem("aiMute", "yes");
+      btn.innerText = "🔇 AI Voice OFF";
+      btn.style.background = "#555555";
+    }
+  }
+
+  if (SpeechRecognition) {
+    const recognition = new SpeechRecognition();
+    recognition.lang = "en-IN";
+    recognition.continuous = true;
+
+    window.addEventListener("load", () => {
+      const btn = document.getElementById("aiToggleBtn");
+      if (localStorage.getItem("aiMute")) {
+        btn.innerText = "🔇 AI Voice OFF";
+        btn.style.background = "#555555";
+      }
+
+      setTimeout(() => {
+        try {
+          recognition.start();
+          statusBox.innerText = "🎙️ Listening...";
+        } catch(e) { console.log("Recognition lifecycle warning:", e); }
+
+        if (!localStorage.getItem("aiGreeted")) {
+          speak("Hello, I am your AI assistant. You can speak commands.");
+          localStorage.setItem("aiGreeted", "yes");
+        }
+      }, 1500);
+    });
+
+    recognition.onresult = function (event) {
+      const command = event.results[event.results.length - 1][0].transcript.toLowerCase();
+      statusBox.innerText = "🧠 Heard: " + command;
+
+      if (command.includes("login")) {
+        speak("Opening login page");
+        window.location.href = "loginbackend.html";
+      }
+      else if (command.includes("home")) {
+        speak("Opening home page");
+        window.location.href = "indexbackend.html";
+      }
+      else if (command.includes("syllabus")) {
+        speak("Opening syllabus page");
+        window.location.href = "syllabus.html";
+      }
+      else if (command.includes("project")) {
+        speak("Opening projects page");
+        window.location.href = "projects.html";
+      }
+      else if (command.includes("contact")) {
+        speak("Opening contact page");
+        window.location.href = "contact.html";
+      }
+    };
+
+    recognition.onerror = function(e) {
+      console.log("Speech system error feedback:", e);
+    };
+
+    recognition.onend = function() {
+      if (!localStorage.getItem("aiMute")) {
+        try { recognition.start(); } catch(err){}
+      }
+    };
+  } else {
+    statusBox.innerText = "🤖 AI Ready (Voice command unsupported)";
+  }
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Academy — Learn AI with Real Projects</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{
+    --bg:#020812;--bg2:#050f1e;--bg3:#071525;
+    --accent:#00d4ff;--accent2:#0066ff;--accent3:#7b2fff;
+    --text:#e8f4ff;--muted:#7a9bb5;--border:rgba(0,212,255,0.15);
+    --card:rgba(7,21,37,0.9);--glow:0 0 20px rgba(0,212,255,0.2);
+  }
+  body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;overflow-x:hidden;min-height:100vh;}
+  
+  /* NAV BAR */
+  nav{position:sticky;top:0;z-index:100;background:rgba(2,8,18,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 2rem;}
+  .nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px;}
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;}
+  .logo{font-family:'Orbitron',monospace;font-size:1.4rem;font-weight:900;color:var(--accent);letter-spacing:2px;}
+  .logo span{color:var(--accent3);}
+  .robot{font-size:1.3rem;}
+  .nav-links{display:flex;gap:0.5rem;align-items:center;}
+  .nav-btn{background:none;border:none;color:var(--muted);font-family:'Exo 2',sans-serif;font-size:0.85rem;padding:0.4rem 0.9rem;border-radius:6px;cursor:pointer;transition:all 0.2s;letter-spacing:0.5px;text-decoration:none;display:inline-flex;align-items:center;}
+  .nav-btn:hover,.nav-btn.active{color:var(--accent);background:rgba(0,212,255,0.08);border:none;}
+  .nav-cta{background:linear-gradient(135deg,var(--accent2),var(--accent3));color:#fff;border:none;font-family:'Exo 2',sans-serif;font-size:0.8rem;padding:0.45rem 1.1rem;border-radius:20px;cursor:pointer;font-weight:600;letter-spacing:0.5px;transition:all 0.2s;text-decoration:none;}
+  .nav-cta:hover{transform:translateY(-1px);box-shadow:0 4px 15px rgba(0,102,255,0.4);}
+
+  /* GRID BG */
+  .grid-bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.03;background-image:linear-gradient(var(--accent) 1px,transparent 1px),linear-gradient(90deg,var(--accent) 1px,transparent 1px);background-size:50px 50px;}
+
+  /* HERO WITH IMAGE SLIDER */
+  .hero {
+    position: relative;
+    min-height: 90vh;
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    align-items: center;
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+    overflow: hidden;
+  }
+  
+  .hero-slider{position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;}
+  .slide{position:absolute;top:0;left:0;width:100%;height:100%;background-size:cover;background-position:center;opacity:0;transition:opacity 1s ease-in-out;}
+  .slide.active{opacity:0.28;} 
+  
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: left;
+    max-width: 700px;
+  }
+  .hero-badge{display:inline-block;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);font-size:0.75rem;letter-spacing:2px;padding:0.4rem 1.2rem;border-radius:20px;margin-bottom:1.5rem;text-transform:uppercase;}
+  .hero-title{font-family:'Orbitron',monospace;font-size:clamp(2rem,4.5vw,3.5rem);font-weight:900;line-height:1.2;margin-bottom:1.5rem;}
+  .hero-title .grad{background:linear-gradient(135deg,var(--accent),var(--accent2),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  
+  .hero-sub {
+    font-size: 1.1rem;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+    margin-left: 0;
+    margin-right: auto;
+  }
+  .hero-age{display:inline-block;background:rgba(123,47,255,0.15);border:1px solid rgba(123,47,255,0.4);color:#c084fc;font-size:0.8rem;padding:0.3rem 1rem;border-radius:20px;margin-bottom:2rem;}
+  
+  .hero-btns {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+  
+  .btn-primary{background:linear-gradient(135deg,var(--accent2),var(--accent3));color:#fff;border:none;font-family:'Exo 2',sans-serif;font-size:0.95rem;padding:0.85rem 2rem;border-radius:8px;cursor:pointer;font-weight:600;transition:all 0.2s;letter-spacing:0.5px;text-decoration:none;display:inline-block;}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,102,255,0.4);}
+  .btn-outline{background:transparent;color:var(--accent);border:1px solid rgba(0,212,255,0.4);font-family:'Exo 2',sans-serif;font-size:0.95rem;padding:0.85rem 2rem;border-radius:8px;cursor:pointer;font-weight:500;transition:all 0.2s;text-decoration:none;display:inline-block;}
+  .btn-outline:hover{background:rgba(0,212,255,0.08);border-color:var(--accent);}
+
+  /* TECH BOXES OVERLAY */
+  .tech-boxes {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-end;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+    margin-top: 0;
+  }
+
+  .tech {
+    background: rgba(7, 21, 37, 0.85);
+    border: 1px solid var(--border);
+    padding: 0.7rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: var(--accent);
+    font-family: 'Orbitron', monospace;
+    box-shadow: var(--glow);
+    width: fit-content;
+    transition: all 0.3s ease;
+  }
+  .tech:hover {
+    border-color: var(--accent);
+    transform: translateX(-5px);
+  }
+
+  /* FLOATING ORBS */
+  .orb{position:absolute;border-radius:50%;filter:blur(60px);animation:float 6s ease-in-out infinite;z-index:1;}
+  .orb1{width:400px;height:400px;background:rgba(0,102,255,0.12);top:-100px;right:-100px;animation-delay:0s;}
+  .orb2{width:300px;height:300px;background:rgba(123,47,255,0.1);bottom:-50px;left:-50px;animation-delay:3s;}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+
+  /* STATS */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;max-width:1100px;margin:3rem auto;padding:0 2rem;position:relative;z-index:2;}
+  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;text-align:center;position:relative;overflow:hidden;transition:all 0.3s;}
+  .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent2),var(--accent3));}
+  .stat-card:hover{transform:translateY(-3px);border-color:rgba(0,212,255,0.3);box-shadow:var(--glow);}
+  .stat-num{font-family:'Orbitron',monospace;font-size:2rem;font-weight:700;color:var(--accent);display:block;}
+  .stat-label{font-size:0.8rem;color:var(--muted);margin-top:0.3rem;letter-spacing:0.5px;}
+
+  /* TICKER CLASS - AUTO SCROLL */
+  .ticker{background:rgba(0,212,255,0.06);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:0.7rem 0;overflow:hidden;white-space:nowrap;position:relative;z-index:2;}
+  .ticker-inner{display:inline-block;animation:ticker 25s linear infinite;}
+  @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  .ticker-item{display:inline-block;margin:0 2rem;font-size:0.8rem;color:var(--accent);letter-spacing:1px;}
+  .ticker-dot{color:var(--accent3);margin:0 0.5rem;}
+
+  /* AUDIENCE STRIP */
+  .audience-strip{background:linear-gradient(135deg,rgba(0,102,255,0.08),rgba(123,47,255,0.08));border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:3rem 2rem;text-align:center;margin:2rem 0;position:relative;z-index:2;}
+  .audience-title{font-family:'Orbitron',monospace;font-size:1.3rem;margin-bottom:0.5rem;}
+  .audience-text{color:var(--muted);max-width:650px;margin:0 auto;line-height:1.7;}
+
+  /* MAIN CONCEPT CARDS */
+  .section{max-width:1100px;margin:0 auto;padding:4rem 2rem;position:relative;z-index:2;}
+  .section-title{font-family:'Orbitron',monospace;font-size:1.5rem;font-weight:700;margin-bottom:0.5rem;text-align:center;}
+  .section-sub{color:var(--muted);text-align:center;margin-bottom:3rem;font-size:0.95rem;}
+  .learn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.8rem;transition:all 0.3s;position:relative;overflow:hidden;}
+  .card:hover{transform:translateY(-4px);border-color:rgba(0,212,255,0.3);box-shadow:var(--glow);}
+  .icon{font-size:2rem;margin-bottom:1rem;display:block;}
+  .card h3{font-weight:600;font-size:1rem;margin-bottom:0.6rem;color:var(--accent);}
+  .card p{color:var(--muted);font-size:0.88rem;line-height:1.7;}
+
+  /* 2 DEMO VIDEO BOXES INTEGRATION */
+  .video-section{max-width:1100px;margin:0 auto;padding:2rem 2rem 4rem;position:relative;z-index:2;}
+  .video-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(450px,1fr));gap:2rem;margin-top:1.5rem;}
+  @media(max-width:600px){.video-grid{grid-template-columns:1fr;}}
+  .video-box{background:var(--card);border:1px solid rgba(0,212,255,0.2);border-radius:16px;overflow:hidden;position:relative;}
+  .video-lock{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3.5rem 2rem;text-align:center;background:linear-gradient(135deg,rgba(0,20,50,0.95),rgba(7,0,30,0.95));height:100%;}
+  .lock-icon{font-size:2.5rem;margin-bottom:1rem;}
+  .lock-title{font-family:'Orbitron',monospace;font-size:1.1rem;color:var(--accent);margin-bottom:0.7rem;}
+  .lock-text{color:var(--muted);font-size:0.88rem;max-width:400px;line-height:1.6;margin-bottom:1.5rem;}
+  .lock-badge{background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);font-size:0.75rem;padding:0.3rem 1rem;border-radius:20px;margin-bottom:1.2rem;}
+
+  /* COURSE HIGHLIGHTS */
+  .highlights{max-width:1100px;margin:0 auto;padding:3rem 2rem;background:var(--bg2);border:1px solid var(--border);border-radius:16px;position:relative;z-index:2;}
+  .highlight-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:1.5rem;text-align:center;}
+  @media(max-width:600px){.highlight-grid{grid-template-columns:1fr;}}
+  .left-col p, .right-col p{color:var(--text);font-size:1rem;margin-bottom:0.8rem;letter-spacing:0.5px;}
+
+  /* SITE FOOTER */
+  .site-footer{background:var(--bg3);border-top:1px solid var(--border);padding:3rem 2rem;margin-top:4rem;position:relative;z-index:2;}
+  .footer-inner{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;flex-wrap:wrap;gap:2rem;}
+  .footer-inner .left, .footer-inner .right{flex:1;min-width:280px;}
+  .logo-small{font-family:'Orbitron',monospace;font-size:1.2rem;font-weight:700;color:var(--accent);margin-bottom:0.5rem;}
+  .footer-inner p{color:var(--muted);font-size:0.85rem;line-height:1.6;margin-bottom:0.5rem;}
+  .socials a{color:var(--accent);text-decoration:none;font-size:0.85rem;transition:color 0.2s;}
+  .socials a:hover{color:var(--accent3);}
+
+  /* RESPONSIVE MEDIA CONTROLS */
+  @media(max-width:768px) {
+    .hero {
+      grid-template-columns: 1fr;
+      text-align: center;
+      padding: 3rem 1.5rem;
+    }
+    .hero-content {
+      text-align: center;
+      margin: 0 auto;
+    }
+    .hero-sub {
+      margin-left: auto;
+    }
+    .hero-btns {
+      justify-content: center;
+    }
+    .tech-boxes {
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      margin-top: 2rem;
+    }
+    .tech {
+      font-size: 0.8rem;
+      padding: 0.5rem 1rem;
+    }
+  }
+
+  /* SYSTEM ANIMATIONS */
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+  .pulse{animation:pulse 2s infinite;}
+  .scan{position:relative;overflow:hidden;}
+  .scan::after{content:'';position:absolute;top:-100%;left:0;width:100%;height:100%;background:linear-gradient(transparent,rgba(0,212,255,0.03),transparent);animation:scan 4s linear infinite;}
+  @keyframes scan{to{top:200%}}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<nav>
+  <div class="nav-inner">
+    <a href="indexbackend.html" class="brand">
+      <div class="logo">AI <span class="robot">🤖</span><span>ACADEMY</span></div>
+    </a>
+    <div class="nav-links">
+      <a href="indexbackend.html" class="nav-btn active">Home</a>
+      <a href="syllabus.html" class="nav-btn">Syllabus</a>
+      <a href="projects.html" class="nav-btn">Projects</a>
+      <a href="company.html" class="nav-btn">Company</a>
+      <a href="contact.html" class="nav-btn">Contact</a>
+      <a href="loginbackend.html" class="nav-cta" style="background:transparent; border:1px solid var(--accent); color:var(--accent); margin-right:5px;">Login</a>
+      <a href="contact.html" class="nav-cta">Get Started</a>
+    </div>
+  </div>
+</nav>
+
+<div class="ticker">
+  <div class="ticker-inner">
+    <span class="ticker-item">AI & Robotics Education</span><span class="ticker-dot">◆</span>
+    <span class="ticker-item">For Students 16+ Years</span><span class="ticker-dot">◆</span>
+    <span class="ticker-item">Bangalore, India</span><span class="ticker-dot">◆</span>
+    <span class="ticker-item">Hands-On Projects</span><span class="ticker-dot">◆</span>
+    <span class="ticker-item">Build Real Robots</span><span class="ticker-dot">◆</span>
+    <span class="ticker-item">Learn AI & Machine Learning</span><span class="ticker-dot">◆</span>
+    <span class="ticker-item">AI & Robotics Education</span><span class="ticker-dot">◆</span>
+    <span class="ticker-item">For Students 16+ Years</span><span class="ticker-dot">◆</span>
+    <span class="ticker-item">Bangalore, India</span><span class="ticker-dot">◆</span>
+    <span class="ticker-item">Hands-On Projects</span><span class="ticker-dot">◆</span>
+    <span class="ticker-item">Build Real Robots</span><span class="ticker-dot">◆</span>
+    <span class="ticker-item">Learn AI & Machine Learning</span><span class="ticker-dot">◆</span>
+  </div>
+</div>
+
+<div id="page-home">
+  <div class="hero scan">
+    <div class="hero-slider" id="heroSlider">
+      <div class="slide active" style="background-image:url('images/Ai.png')"></div>
+      <div class="slide" style="background-image:url('images/download.webp')"></div>
+      <div class="slide" style="background-image:url('images/OIP.jpeg')"></div>
+      <div class="slide" style="background-image:url('images/OIP.webp')"></div>
+      <div class="slide" style="background-image:url('images/OIP\ \(1\).jpeg')"></div>
+      <div class="slide" style="background-image:url('images/OIP\ \(2\).webp')"></div>
+      <div class="slide" style="background-image:url('images/OIP\ \(3\).webp')"></div>
+      <div class="slide" style="background-image:url('images/OIP\ \(4\).webp')"></div>
+    </div>
+
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    
+    <div class="hero-content">
+      <div class="hero-badge pulse">🤖 Next-Gen AI & Robotics Academy</div>
+      <h1 class="hero-title">Welcome To AI Academy<br><span class="grad">Learn Artificial Intelligence</span></h1>
+      <div class="hero-age">🎯 Exclusively for Class 11, 12 & Degree Students</div>
+      <p class="hero-sub">100+ Lessons • Real Projects • Quizzes • Certificates. Train real smart models, integrate physical microcontrollers and craft production scale engineering setups.</p>
+      <div class="hero-btns">
+        <a href="loginbackend.html" class="btn-primary">Start Learning</a>
+        <a href="syllabus.html" class="btn-outline">View Syllabus</a>
+      </div>
+    </div>
+
+    <div class="tech-boxes">
+      <div class="tech">AI</div>
+      <div class="tech">IoT</div>
+      <div class="tech">Electronics</div>
+      <div class="tech">Arduino Uno</div>
+      <div class="tech">Robotics</div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat-card"><span class="stat-num">2</span><div class="stat-label">Structured Levels</div></div>
+    <div class="stat-card"><span class="stat-num">10+</span><div class="stat-label">Modules Covered</div></div>
+    <div class="stat-card"><span class="stat-num">50+</span><div class="stat-label">Topics & Concepts</div></div>
+    <div class="stat-card"><span class="stat-num">100%</span><div class="stat-label">Project-Based Learning</div></div>
+  </div>
+
+  <div class="audience-strip">
+    <h2 class="audience-title">Built for the Next Generation of Innovators</h2>
+    <p class="audience-text">Whether you're an engineering student eager to future-proof your career, or a high schooler ready to go beyond entry-level modules — AI Academy gives you the core tools, physical hardware logic, and advanced automation workflows to step up your tech game.</p>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">What Students Will <span style="color:var(--accent)">Learn</span></h2>
+    <p class="section-sub">We don't just teach modules. We make you write production architectures.</p>
+    <div class="learn-grid">
+      <div class="card">
+        <span class="icon">🤖</span>
+        <h3>Artificial Intelligence</h3>
+        <p>Concepts, backend logic, and real architectural model deployment workflows.</p>
+      </div>
+      <div class="card">
+        <span class="icon">🕸️</span>
+        <h3>Machine Learning</h3>
+        <p>Train deep mathematical models, analyze system datasets and build robust real-time predictive systems.</p>
+      </div>
+      <div class="card">
+        <span class="icon">📷</span>
+        <h3>Computer Vision</h3>
+        <p>Advanced real-time image detection tracking, physical matrix mapping and facial profile recognition structures.</p>
+      </div>
+      <div class="card">
+        <span class="icon">🔌</span>
+        <h3>Electronics</h3>
+        <p>Hardware logic design, solid-state breadboard routing, environmental physical component diagnostics.</p>
+      </div>
+      <div class="card">
+        <span class="icon">🟦</span>
+        <h3>Arduino Programming</h3>
+        <p>Physical production scripting, raw assembly configurations, and hardware module control setups on Arduino Uno.</p>
+      </div>
+      <div class="card">
+        <span class="icon">🌐</span>
+        <h3>IoT Ecosystems</h3>
+        <p>Network protocol configurations, edge computing setups, and secure real-time data ingestion models to web dashboards.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" style="padding-top:0;">
+    <div class="highlights">
+      <h2 class="section-title">Course Highlights</h2>
+      <div class="highlight-grid">
+        <div class="left-col">
+          <p>✓ 100+ step-by-step professional video lessons</p>
+          <p>✓ Rigorous project-based hardware development</p>
+        </div>
+        <div class="right-col">
+          <p>✓ Auto-scored algorithmic testing & metrics tracking</p>
+          <p>✓ Fully isolated personal student dashboard portal</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="video-section">
+    <h2 class="section-title">See What You'll <span style="color:var(--accent)">Build</span></h2>
+    <p class="section-sub">A glimpse into the internal AI Academy training models</p>
+    
+    <div class="video-grid">
+  <div class="video-box">
+    <video id="demoVideo1" controls poster="1.1.png" style="width: 100%; height: 100%; display: block; object-fit: cover; background: #000;">
+      <source src="1.1Introduction of AI.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <div style="padding: 1rem; background: var(--bg3); border-top: 1px solid var(--border);">
+      <span style="background: #00ff88; color: #020812; font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 4px; text-transform: uppercase; margin-bottom: 0.5rem; display: inline-block;">
+        🔓 Free Preview
+      </span>
+      <div class="lock-title" style="margin-bottom: 0.4rem; text-align: left;">Demo Preview 1 — Level 1 Core Mechanics</div>
+      <p class="lock-text" style="text-align: left; margin-bottom: 0;">An in-depth guide on handling sensor data filtering and real-time decision processing systems on breadboards.</p>
+    </div>
+  </div>
+
+  <div class="video-box">
+    <div class="video-lock">
+      <div class="lock-badge pulse">🔐 Enrolled Students Only</div>
+      <span class="lock-icon">🎥</span>
+      <div class="lock-title">Demo Preview 2 — Level 2 Advanced Automation</div>
+      <p class="lock-text">Observe complex real-world robotics coordination routines incorporating environmental sensor tracking patterns.</p>
+      <a href="loginbackend.html" class="btn-primary" style="padding: 0.6rem 1.4rem; font-size: 0.85rem; box-shadow: 0 0 15px rgba(123,47,255,0.4);">
+        Login to Unlock Video
+      </a>
+    </div>
+  </div>
+</div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="left">
+      <div class="logo-small">AI Academy</div>
+      <p>© 2026 AI Academy — All rights reserved.</p>
+      <h5 style="color:yellow; font-weight: 600; font-size: 0.9rem; margin: 0.8rem 0 0.3rem;">Learn AI with Real Projects</h5>
+      <p>AI + Electronics + Arduino + IoT — Practical learning built specifically for technical students.</p>
+    </div>
+    <div class="right" style="text-align: right;">
+      <p>Contact: +91-XXXXXXXXXX | email@aiacademy.com</p>
+      <div class="socials" style="margin-top: 0.8rem;">
+        <a href="#">YouTube</a> • <a href="#">Instagram</a> • <a href="#">WhatsApp</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<div id="aiStatus" style="
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  background:black;
+  color:#00ff88;
+  padding:12px 16px;
+  border-radius:12px;
+  font-size:14px;
+  z-index:9999;
+  box-shadow:0 0 15px #00ff88;
+  font-family:'Orbitron', monospace;">
+  🤖 AI ready
+</div>
+
+<button id="aiToggleBtn" onclick="toggleAI()" style="
+  position:fixed;
+  bottom:20px;
+  left:20px;
+  padding:10px 14px;
+  border-radius:10px;
+  border:none;
+  background:#ff4444;
+  color:white;
+  font-size:14px;
+  cursor:pointer;
+  font-weight: 600;
+  z-index:9999;
+  box-shadow: 0 4px 10px rgba(255,68,68,0.3);">
+  🔊 AI Voice ON
+</button>
+
+<script>
+  // 1. HERO AUTOMATIC BACKGROUND IMAGE SLIDER ENGINE
+  const slides = document.querySelectorAll('#heroSlider .slide');
+  let currentSlideIndex = 0;
+
+  function nextSlide() {
+    slides[currentSlideIndex].classList.remove('active');
+    currentSlideIndex = (currentSlideIndex + 1) % slides.length;
+    slides[currentSlideIndex].classList.add('active');
+  }
+  setInterval(nextSlide, 3000);
+
+  // 2. STATISTICAL NUMBER COUNTER INCREMENT LOGIC
+  var counters = document.querySelectorAll('.stat-num');
+  counters.forEach(function(c){
+    var target = c.innerText;
+    var num = parseInt(target);
+    if(isNaN(num)) return;
+    var suffix = target.replace(num, '');
+    var current = 0;
+    var step = Math.ceil(num / 30);
+    var interval = setInterval(function(){
+      current = Math.min(current + step, num);
+      c.innerText = current + suffix;
+      if(current >= num) clearInterval(interval);
+    }, 50);
+  });
+
+  // 3. ORIGINAL SPEECH RECOGNITION & VOICE COMMAND LOGIC
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const synth = window.speechSynthesis;
+  const statusBox = document.getElementById("aiStatus");
+
+  function speak(text) {
+    if (localStorage.getItem("aiMute")) return;
+    const msg = new SpeechSynthesisUtterance(text);
+    msg.lang = "en-IN";
+    synth.speak(msg);
+  }
+
+  function toggleAI() {
+    const btn = document.getElementById("aiToggleBtn");
+    if (localStorage.getItem("aiMute")) {
+      localStorage.removeItem("aiMute");
+      btn.innerText = "🔊 AI Voice ON";
+      btn.style.background = "#ff4444";
+    } else {
+      localStorage.setItem("aiMute", "yes");
+      btn.innerText = "🔇 AI Voice OFF";
+      btn.style.background = "#555555";
+    }
+  }
+
+  if (SpeechRecognition) {
+    const recognition = new SpeechRecognition();
+    recognition.lang = "en-IN";
+    recognition.continuous = true;
+
+    window.addEventListener("load", () => {
+      const btn = document.getElementById("aiToggleBtn");
+      if (localStorage.getItem("aiMute")) {
+        btn.innerText = "🔇 AI Voice OFF";
+        btn.style.background = "#555555";
+      }
+
+      setTimeout(() => {
+        try {
+          recognition.start();
+          statusBox.innerText = "🎙️ Listening...";
+        } catch(e) { console.log("Recognition lifecycle warning:", e); }
+
+        if (!localStorage.getItem("aiGreeted")) {
+          speak("Hello, I am your AI assistant. You can speak commands.");
+          localStorage.setItem("aiGreeted", "yes");
+        }
+      }, 1500);
+    });
+
+    recognition.onresult = function (event) {
+      const command = event.results[event.results.length - 1][0].transcript.toLowerCase();
+      statusBox.innerText = "🧠 Heard: " + command;
+
+      if (command.includes("login")) {
+        speak("Opening login page");
+        window.location.href = "loginbackend.html";
+      }
+      else if (command.includes("home")) {
+        speak("Opening home page");
+        window.location.href = "indexbackend.html";
+      }
+      else if (command.includes("syllabus")) {
+        speak("Opening syllabus page");
+        window.location.href = "syllabus.html";
+      }
+      else if (command.includes("project")) {
+        speak("Opening projects page");
+        window.location.href = "projects.html";
+      }
+      else if (command.includes("contact")) {
+        speak("Opening contact page");
+        window.location.href = "contact.html";
+      }
+    };
+
+    recognition.onerror = function(e) {
+      console.log("Speech system error feedback:", e);
+    };
+
+    recognition.onend = function() {
+      if (!localStorage.getItem("aiMute")) {
+        try { recognition.start(); } catch(err){}
+      }
+    };
+  } else {
+    statusBox.innerText = "🤖 AI Ready (Voice command unsupported)";
+  }
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ -->

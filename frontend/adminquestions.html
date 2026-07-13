@@ -1,0 +1,692 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin | Create Question Paper</title>
+
+<style>
+body {
+    margin:0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg,#c3ecff,#fef6ff);
+    min-height:100vh;
+}
+.container {
+    width:900px;
+    margin:30px auto;
+    background:#fff;
+    padding:25px 30px;
+    border-radius:16px;
+    box-shadow:0 15px 35px rgba(0,0,0,.15);
+}
+h2,h3 { text-align:center; color:#5a189a; }
+label { font-weight:600; margin-top:10px; display:block; }
+input, select, textarea {
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    border:1px solid #ccc;
+    border-radius:8px;
+}
+textarea { height:80px; resize:none; }
+button {
+    padding:12px;
+    background:#5a189a;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+    margin-top:15px;
+}
+button:hover { background:#9d4edd; }
+.question-box {
+    background:#f8f0ff;
+    padding:15px;
+    border-radius:12px;
+    margin-top:20px;
+}
+.mcq-options { display:none; margin-top:10px; }
+.add-btn { background:#9d4edd; margin-bottom:10px; }
+#msg { text-align:center; font-weight:bold; margin-top:15px; color:green; }
+</style>
+</head>
+<body>
+
+<div class="container">
+<h2>📄 Create Question Paper</h2>
+
+<h3>Common Exam Details</h3>
+
+<label>Select Level</label>
+<select id="levelId"></select>
+
+<label>Select Module</label>
+<select id="moduleId"></select>
+
+<label>Part ID</label><input id="partId">
+
+<label>College</label><input id="collegeName">
+<label>Class</label><input id="studentClass">
+<label>Section</label><input id="section">
+
+<label>Question Set</label>
+<select id="questionSet">
+    <option value="A">Set A</option>
+    <option value="B">Set B</option>
+    <option value="C">Set C</option>
+</select>
+
+<hr>
+<h3>Questions</h3>
+<div id="questionsContainer"></div>
+
+<button class="add-btn" onclick="addQuestion()">➕ Add Question</button>
+<button onclick="saveAll()">✅ Save All Questions</button>
+<p id="msg"></p>
+
+</div>
+
+<script>
+
+let qIndex = 0;
+let allTopics = [];
+
+/* ---------------- LOAD LEVELS ---------------- */
+fetch("http://localhost:8080/api/levels")
+.then(res => res.json())
+.then(data => {
+    let levelSelect = document.getElementById("levelId");
+    levelSelect.innerHTML = "<option value=''>Select Level</option>";
+    data.forEach(level => {
+        levelSelect.innerHTML += `<option value="${level.id}">${level.name}</option>`;
+    });
+});
+
+/* ---------------- LOAD MODULES ---------------- */
+document.getElementById("levelId").addEventListener("change", function(){
+
+    let levelId = this.value;
+
+    fetch(`http://localhost:8080/api/modules/byLevel/${levelId}`)
+    .then(res => res.json())
+    .then(data => {
+        let moduleSelect = document.getElementById("moduleId");
+        moduleSelect.innerHTML = "<option value=''>Select Module</option>";
+        data.forEach(module => {
+            moduleSelect.innerHTML += `<option value="${module.id}">${module.name}</option>`;
+        });
+    });
+});
+
+/* ---------------- LOAD TOPICS WHEN MODULE CHANGES ---------------- */
+document.getElementById("moduleId").addEventListener("change", function(){
+
+    let moduleId = this.value;
+
+    fetch(`http://localhost:8080/api/topics/byModule/${moduleId}`)
+    .then(res => res.json())
+    .then(data => {
+        allTopics = data;
+    });
+});
+
+/* ---------------- ADD QUESTION ---------------- */
+function addQuestion() {
+
+    qIndex++;
+
+    let topicOptions = "<option value=''>Select Topic</option>";
+    allTopics.forEach(t => {
+        topicOptions += `<option value="${t.id}">${t.name}</option>`;
+    });
+
+    const div = document.createElement("div");
+    div.className = "question-box";
+
+    div.innerHTML = `
+        <h4>Question ${qIndex}</h4>
+
+        <label>Question Type</label>
+        <select class="qType" onchange="toggleMCQ(this)">
+            <option value="MCQ">MCQ</option>
+            <option value="CODING">Coding</option>
+            <option value="NORMAL">Normal</option>
+        </select>
+
+        <label>Select Topic</label>
+        <select class="topicId">
+            ${topicOptions}
+        </select>
+
+        <label>Question</label>
+        <textarea class="qText"></textarea>
+
+        <div class="mcq-options">
+            <label>MCQ Options</label>
+            <input placeholder="Option A" class="optA">
+            <input placeholder="Option B" class="optB">
+            <input placeholder="Option C" class="optC">
+            <input placeholder="Option D" class="optD">
+        </div>
+
+        <label>Correct Answer</label>
+        <input class="correctAnswer">
+
+        <label>Marks</label>
+        <input type="number" class="marks">
+    `;
+
+    document.getElementById("questionsContainer").appendChild(div);
+}
+
+function toggleMCQ(sel) {
+    const box = sel.closest(".question-box").querySelector(".mcq-options");
+    box.style.display = sel.value === "MCQ" ? "block" : "none";
+}
+
+/* ---------------- SAVE ALL ---------------- */
+async function saveAll() {
+
+    document.querySelectorAll(".question-box").forEach(async q => {
+
+        const payload = {
+            levelId: document.getElementById("levelId").value,
+            partId: document.getElementById("partId").value,
+            moduleId: document.getElementById("moduleId").value,
+            questionSet: document.getElementById("questionSet").value,
+            collegeName: document.getElementById("collegeName").value,
+            studentClass: document.getElementById("studentClass").value,
+            section: document.getElementById("section").value,
+            topicId: q.querySelector(".topicId").value,
+            questionType: q.querySelector(".qType").value,
+            questionText: q.querySelector(".qText").value,
+            correctAnswer: q.querySelector(".correctAnswer").value,
+            marks: q.querySelector(".marks").value
+        };
+
+        await fetch("http://localhost:8080/api/student/questions/add", {
+            method:"POST",
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify(payload)
+        });
+
+    });
+
+    document.getElementById("msg").innerText = "✅ Questions Saved Successfully!";
+}
+
+</script>
+
+</body>
+</html>
+ -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin | Create Question Paper</title>
+
+<style>
+body {
+    margin:0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg,#c3ecff,#fef6ff);
+    min-height:100vh;
+}
+.container {
+    width:950px;
+    margin:30px auto;
+    background:#fff;
+    padding:25px 30px;
+    border-radius:16px;
+    box-shadow:0 15px 35px rgba(0,0,0,.15);
+}
+h2,h3 { text-align:center; color:#5a189a; }
+label { font-weight:600; margin-top:10px; display:block; }
+input, select, textarea {
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    border:1px solid #ccc;
+    border-radius:8px;
+}
+textarea { height:80px; resize:none; }
+button {
+    padding:12px;
+    background:#5a189a;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+    margin-top:15px;
+}
+button:hover { background:#9d4edd; }
+.question-box {
+    background:#f8f0ff;
+    padding:15px;
+    border-radius:12px;
+    margin-top:20px;
+}
+.mcq-options { display:none; margin-top:10px; }
+.topic-section { display:none; margin-top:10px; }
+.add-btn { background:#9d4edd; margin-bottom:10px; }
+#msg { text-align:center; font-weight:bold; margin-top:15px; color:green; }
+</style>
+</head>
+<body>
+
+<div class="container">
+<h2>📄 Create Question Paper</h2>
+
+<h3>Common Exam Details</h3>
+
+<label>Select Level</label>
+<select id="levelId"></select>
+
+<label>Select Part</label>
+<select id="partId"></select>
+
+<label>Select Module</label>
+<select id="moduleId"></select>
+
+<label>College</label>
+<input id="collegeName">
+
+<label>Class</label>
+<input id="studentClass">
+
+<label>Section</label>
+<input id="section">
+
+<label>Question Set</label>
+<select id="questionSet">
+<option value="A">Set A</option>
+<option value="B">Set B</option>
+<option value="C">Set C</option>
+</select>
+
+<hr>
+<h3>Questions</h3>
+<div id="questionsContainer"></div>
+
+<button class="add-btn" onclick="addQuestion()">➕ Add Question</button>
+<button onclick="saveAll()">✅ Save All Questions</button>
+<p id="msg"></p>
+
+</div>
+
+<script>
+
+let qIndex = 0;
+let allTopics = [];
+
+/* ---------------- LOAD LEVELS ---------------- */
+fetch("http://localhost:8080/admin/levels")
+.then(res => res.json())
+.then(data => {
+    let levelSelect = document.getElementById("levelId");
+    levelSelect.innerHTML = "<option value=''>Select Level</option>";
+    data.forEach(level => {
+        levelSelect.innerHTML += `<option value="${level.id}">${level.name}</option>`;
+    });
+});
+
+/* ---------------- LOAD PARTS ---------------- */
+document.getElementById("levelId").addEventListener("change", function(){
+
+    let levelId = this.value;
+
+    fetch(`http://localhost:8080/admin/parts?levelId=${levelId}`)
+    .then(res => res.json())
+    .then(data => {
+        let partSelect = document.getElementById("partId");
+        partSelect.innerHTML = "<option value=''>Select Part</option>";
+        data.forEach(part => {
+            partSelect.innerHTML += `<option value="${part.id}">${part.name}</option>`;
+        });
+    });
+
+});
+
+/* ---------------- LOAD MODULES ---------------- */
+document.getElementById("partId").addEventListener("change", function(){
+
+    let partId = this.value;
+
+    fetch(`http://localhost:8080/admin/modules?partId=${partId}`)
+    .then(res => res.json())
+    .then(data => {
+        let moduleSelect = document.getElementById("moduleId");
+        moduleSelect.innerHTML = "<option value=''>Select Module</option>";
+        data.forEach(module => {
+            moduleSelect.innerHTML += `<option value="${module.id}">${module.name}</option>`;
+        });
+    });
+
+});
+
+/* ---------------- LOAD TOPICS ---------------- */
+document.getElementById("moduleId").addEventListener("change", function(){
+
+    let moduleId = this.value;
+
+    fetch(`http://localhost:8080/admin/topics?moduleId=${moduleId}`)
+    .then(res => res.json())
+    .then(data => {
+        allTopics = data;
+    });
+
+});
+
+/* ---------------- ADD QUESTION ---------------- */
+function addQuestion() {
+
+    qIndex++;
+
+    const div = document.createElement("div");
+    div.className = "question-box";
+
+    div.innerHTML = `
+        <h4>Question ${qIndex}</h4>
+
+        <label>Question Type</label>
+        <select class="qType" onchange="handleTypeChange(this)">
+            <option value="">Select Type</option>
+            <option value="MCQ">MCQ</option>
+            <option value="CODING">Coding</option>
+            <option value="NORMAL">Normal</option>
+        </select>
+
+        <label>Question</label>
+        <textarea class="qText" oninput="checkQuestionFilled(this)"></textarea>
+
+        <div class="topic-section">
+            <label>Select Topic</label>
+            <select class="topicId"></select>
+        </div>
+
+        <div class="mcq-options">
+            <label>MCQ Options</label>
+            <input placeholder="Option A" class="optA">
+            <input placeholder="Option B" class="optB">
+            <input placeholder="Option C" class="optC">
+            <input placeholder="Option D" class="optD">
+        </div>
+
+        <label>Correct Answer</label>
+        <textarea class="correctAnswer" placeholder="Write your answer or code here..."></textarea>
+       
+
+        <label>Marks</label>
+        <input type="number" class="marks">
+    `;
+
+    document.getElementById("questionsContainer").appendChild(div);
+}
+
+/* Show MCQ options */
+function handleTypeChange(sel) {
+
+    const box = sel.closest(".question-box");
+    const mcq = box.querySelector(".mcq-options");
+
+    if(sel.value === "MCQ"){
+        mcq.style.display = "block";
+    } else {
+        mcq.style.display = "none";
+    }
+}
+
+/* Show topic only after question written */
+function checkQuestionFilled(textarea){
+
+    const box = textarea.closest(".question-box");
+    const topicSection = box.querySelector(".topic-section");
+    const topicSelect = box.querySelector(".topicId");
+
+    if(textarea.value.trim().length > 0){
+
+        let topicOptions = "<option value=''>Select Topic</option>";
+        allTopics.forEach(t => {
+            topicOptions += `<option value="${t.id}">${t.name}</option>`;
+        });
+
+        topicSelect.innerHTML = topicOptions;
+        topicSection.style.display = "block";
+    } else {
+        topicSection.style.display = "none";
+    }
+}
+
+/* ---------------- SAVE ALL ---------------- */
+async function saveAll() {
+
+    const questions = document.querySelectorAll(".question-box");
+
+    for (let q of questions) {
+
+        const payload = {
+            levelId: document.getElementById("levelId").value,
+            partId: document.getElementById("partId").value,
+            moduleId: document.getElementById("moduleId").value,
+            questionSet: document.getElementById("questionSet").value,
+            collegeName: document.getElementById("collegeName").value,
+            studentClass: document.getElementById("studentClass").value,
+            section: document.getElementById("section").value,
+            topicId: q.querySelector(".topicId").value,
+            questionType: q.querySelector(".qType").value,
+            questionText: q.querySelector(".qText").value,
+            correctAnswer: q.querySelector(".correctAnswer").value,
+            marks: q.querySelector(".marks").value,
+            optionA: q.querySelector(".optA")?.value || "",
+            optionB: q.querySelector(".optB")?.value || "",
+            optionC: q.querySelector(".optC")?.value || "",
+            optionD: q.querySelector(".optD")?.value || ""
+        };
+
+        await fetch("http://localhost:8080/api/student/questions/add", {
+            method:"POST",
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify(payload)
+        });
+    }
+
+    document.getElementById("msg").innerText = "✅ Questions Saved Successfully!";
+}
+
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin | Create Question Paper</title>
+<style>
+body {
+    margin:0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg,#c3ecff,#fef6ff);
+    min-height:100vh;
+}
+.container {
+    width:900px;
+    margin:30px auto;
+    background:#fff;
+    padding:25px 30px;
+    border-radius:16px;
+    box-shadow:0 15px 35px rgba(0,0,0,.15);
+}
+h2,h3 { text-align:center; color:#5a189a; }
+label { font-weight:600; margin-top:10px; display:block; }
+input, select, textarea {
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    border:1px solid #ccc;
+    border-radius:8px;
+}
+textarea { height:80px; resize:none; }
+button {
+    padding:12px;
+    background:#5a189a;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+    margin-top:15px;
+}
+button:hover { background:#9d4edd; }
+.question-box {
+    background:#f8f0ff;
+    padding:15px;
+    border-radius:12px;
+    margin-top:20px;
+}
+.mcq-options { display:none; margin-top:10px; }
+.add-btn { background:#9d4edd; margin-bottom:10px; }
+#msg { text-align:center; font-weight:bold; margin-top:15px; color:green; }
+</style>
+</head>
+<body>
+
+<div class="container">
+<h2>📄 Create Question Paper</h2>
+
+<h3>Common Exam Details</h3>
+<label>Level ID</label><input id="levelId">
+<label>Part ID</label><input id="partId">
+<label>Module ID</label><input id="moduleId">
+<label>College</label><input id="collegeName">
+<label>Class</label><input id="studentClass">
+<label>Section</label><input id="section">
+<label>Question Set</label>
+<select id="questionSet">
+    <option value="A">Set A</option>
+    <option value="B">Set B</option>
+    <option value="C">Set C</option>
+</select>
+
+<hr>
+<h3>Questions</h3>
+<div id="questionsContainer"></div>
+
+<button class="add-btn" onclick="addQuestion()">➕ Add Question</button>
+<button onclick="saveAll()">✅ Save All Questions</button>
+<p id="msg"></p>
+</div>
+
+<script>
+let qIndex = 0;
+
+function addQuestion() {
+    qIndex++;
+    const div = document.createElement("div");
+    div.className = "question-box";
+    div.innerHTML = `
+        <h4>Question ${qIndex}</h4>
+        <label>Type</label>
+        <select class="qType" onchange="toggleMCQ(this)">
+            <option value="MCQ">MCQ</option>
+            <option value="CODING">Coding</option>
+            <option value="NORMAL">Normal</option>
+        </select>
+
+        <label>Question</label>
+        <textarea class="qText" placeholder="Enter question here..."></textarea>
+
+        <div class="mcq-options">
+            <label>MCQ Options</label>
+            <input placeholder="Option A" class="optA">
+            <input placeholder="Option B" class="optB">
+            <input placeholder="Option C" class="optC">
+            <input placeholder="Option D" class="optD">
+        </div>
+
+        <label>Correct Answer</label>
+        <input placeholder="Correct Answer" class="correctAnswer">
+
+        <label>Marks</label>
+        <input type="number" class="marks" placeholder="Marks">
+    `;
+    document.getElementById("questionsContainer").appendChild(div);
+}
+
+function toggleMCQ(sel) {
+    const box = sel.closest(".question-box").querySelector(".mcq-options");
+    box.style.display = sel.value === "MCQ" ? "block" : "none";
+}
+
+async function saveAll() {
+    const questions = [];
+    document.querySelectorAll(".question-box").forEach(q => {
+        const type = q.querySelector(".qType").value;
+        const text = q.querySelector(".qText").value;
+        const correct = q.querySelector(".correctAnswer").value;
+        const marks = q.querySelector(".marks").value;
+
+        let optionA="", optionB="", optionC="", optionD="";
+        if(type === "MCQ") {
+            optionA = q.querySelector(".optA").value;
+            optionB = q.querySelector(".optB").value;
+            optionC = q.querySelector(".optC").value;
+            optionD = q.querySelector(".optD").value;
+        }
+
+        questions.push({
+            questionType: type,
+            questionText: text,
+            optionA, optionB, optionC, optionD,
+            correctAnswer: correct,
+            marks
+        });
+    });
+
+    const payload = {
+        levelId: document.getElementById("levelId").value,
+        partId: document.getElementById("partId").value,
+        moduleId: document.getElementById("moduleId").value,
+        collegeName: document.getElementById("collegeName").value,
+        studentClass: document.getElementById("studentClass").value,
+        section: document.getElementById("section").value,
+        questionSet: document.getElementById("questionSet").value,
+        questions
+    };
+
+    try {
+        const res = await fetch("http://localhost:8080/api/admin/questions/bulk-add", {
+            method:"POST",
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify(payload)
+        });
+
+        document.getElementById("msg").innerText =
+            res.ok ? "✅ All questions saved successfully!" : "❌ Error saving questions";
+    } catch(e) {
+        console.error(e);
+        document.getElementById("msg").innerText = "❌ Server error!";
+    }
+}
+</script>
+</body>
+</html>  -->

@@ -1,0 +1,312 @@
+
+/* Simple, responsive frontend demo for AI Academy */
+/* Author: Generated demo */
+/* Colors: black navbar, white content, blue accents */
+
+:root{
+  --primary:#0A6EFF;
+  --bg:#ffffff;
+  --text:#111;
+  --muted:#666;
+  --nav:#0b0b0b;
+  --accent:#0a6eff;
+  --card:#f7f9fc;
+}
+
+*{box-sizing:border-box;font-family:Inter, system-ui, Arial, sans-serif}
+body{margin:0;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+a{color:var(--primary);text-decoration:none}
+.navbar{display:flex;justify-content:space-between;align-items:center;padding:12px 28px;background:var(--nav);color:#fff;position:sticky;top:0;z-index:40}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{font-weight:800;font-size:22px}
+.logo .robot{font-size:18px;margin-left:6px}
+.brand-text{font-size:14px;opacity:0.9}
+.nav-links a{margin-left:12px; padding:4px 8px;border-radius:6px;background:transparent;border:1px solid rgba(255,255,255,0.12);color:#fff}
+.nav-links .btn{margin-left:12px;padding:8px 12px;border-radius:6px;background:transparent;border:1px solid rgba(255,255,255,0.12)}
+.site-header.small .hero{padding-top:0}
+ .nav-links a.active-link {
+color: var(--accent) !important;
+border: 1px solid var(--accent); 
+
+}
+
+.hero{
+  /* border: 5px solid red; */
+  position:relative;
+  overflow:hidden;
+  min-height:500px;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  padding:40px 28px
+} 
+
+.hero-slider
+{
+  border: 2px solid pink;
+  position:absolute;
+  left:0;top:0;
+  height:100%;
+  width:200%;
+  display:flex;
+  animation:slide 50s linear infinite
+}
+.hero-slider .slide{
+  flex:0 0 33.333%;
+  background-size:cover;
+  background-position:center;
+  filter:brightness(0.50)
+}
+@keyframes slide{
+  0%{transform:translateX(0)}
+  33%{transform:translateX(-33.333%)}
+  66%{transform:translateX(-66.666%)}
+  100%{transform:translateX(0)}
+}
+
+.hero-content{position:relative;z-index:2;max-width:700px;color:#fff;margin-left:10px}
+.hero-content h1{font-size:34px;margin:0 0 10px}
+.hero-content p{margin:6px 0;color:#e8eefc}
+.line{margin-top:8px;font-weight:600}
+.hero-cta .btn{display:inline-block;margin-right:10px}
+.hero-content .btn.outline{
+  background-color: transparent; 
+    color: #00B7FF; 
+    padding: 12px 25px;
+    font-size: 16px;
+    border: 2px solid #178ad1; /* Your existing blue border */
+    border-radius: 8px; 
+    cursor: pointer;
+    position: absolute; /* ESSENTIAL */
+    overflow: hidden; 
+    text-decoration: none; 
+    display: inline-block;
+    position: absolute;
+    top: 145px;
+    left: 150px;
+    height: 40px;
+    width: 150px;
+    display: flex; /* 1. Flexbox को enable करें */
+    justify-content: center; /* 2. Text को horizontally (आड़ा) center करें */
+    align-items: center;
+}
+
+.learn-section h2 {
+    text-align: center;
+    margin-bottom: 40px;
+    font-size: 28px;
+}
+
+.learn-grid {
+    max-width: 950px;
+    margin: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 25px;
+}
+
+.card {
+    background: #fff;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0px 5px 18px rgba(0, 0, 0, 0.06);
+    text-align: center;
+}
+
+.card .icon {
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+
+.card h3 {
+    font-size: 20px;
+    margin: 10px 0 5px;
+}
+
+/* HIGHLIGHTS */
+ .highlights {
+    padding: 50px 20px;
+    text-align: center;
+} 
+.highlights h2 {
+    font-size: 20px;
+    margin-bottom: 30px;
+}
+.highlight-grid {
+    display: flex;
+    justify-content: center;
+    gap: 80px;        /* space between left & right */
+    max-width: 900px;
+    margin: auto;
+}
+
+.left-col p,
+.right-col p {
+    font-size: 18px;
+    margin: 12px 0;
+    color: #333;
+}
+/* .highlights ul {
+    max-width: 700px;
+    /* margin: auto; */
+    /* margin-left: 400px;
+    text-align: left;
+    list-style: none;
+    padding: 0;
+}
+
+.highlights li {
+    font-size: 18px;
+    margin: 12px 0;
+    margin-left: 0px;
+} */ */
+
+/* DEMO PREVIEW */
+.demo {
+    padding: 50px 20px;
+    text-align: center;
+}
+
+.demo p {
+    color: #475569;
+}
+
+.demo-buttons {
+    margin-top: 20px;
+}
+
+.demo-buttons button {
+    padding: 12px 25px;
+    border: 1px solid #cbd5e1;
+    background: white;
+    border-radius: 10px;
+    margin: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.2s;
+}
+
+.demo-buttons button:hover {
+    background: #e2e8f0;
+}
+.hero-cta .btn.outline::after{
+  content: '';
+    position: absolute;
+    /* KEY CHANGE 1: Start position is positive to move the dot inside the border */
+    top: 2px; /* Starts 2px down from the top edge (just inside the border) */
+    left: 2px; /* Starts 2px right from the left edge (just inside the border) */
+    
+    width: 10px; /* Slightly smaller dot for better fit inside the border */
+    height: 10px; 
+    background-color: #A259FF; /* The color of your moving dot */
+    border-radius: 50%; 
+    box-shadow: 0 0 8px #A259FF; /* Optional: adds a glow effect */
+    animation: moveDotInside 6s linear infinite; /* New animation name */
+    z-index: 2;
+}
+@keyframes moveDotInside {
+    /* Top-Left Corner (Inner Edge) */
+    0% { top: 2px; left: 2px; } 
+    
+    /* Top-Right Corner (Inner Edge) */
+    /* 100% of the button width, minus 2px for the right border, minus 8px (dot width) */
+    25% { top: 2px; left: calc(100% - 10px); } 
+    
+    /* Bottom-Right Corner (Inner Edge) */
+    /* 100% of the button height, minus 2px for the bottom border, minus 8px (dot height) */
+    50% { top: calc(100% - 10px); left: calc(100% - 10px); } 
+    
+    /* Bottom-Left Corner (Inner Edge) */
+    75% { top: calc(100% - 10px); left: 2px; } 
+    
+    /* Back to Top-Left Corner */
+    100% { top: 2px; left: 2px; } 
+}
+/* tech boxes */
+.tech-boxes{
+  position:absolute;
+  right:28px;
+  top:24px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  z-index:3}
+.tech{
+  background:rgba(255,255,255,0.08);
+  padding:8px 12px;border-radius:8px;
+  color:#fff;
+  font-weight:600;
+  backdrop-filter:blur(6px)
+}
+.tech-boxes  :hover{
+  
+  border: 2px solid #070442;
+  background-color: #630514;
+  cursor: pointer;
+  
+}
+
+/* layout */
+.main-content{padding:28px}
+.features{margin:24px 0}
+.cards{display:flex;gap:12px;flex-wrap:wrap}
+.card{ background:var(--card);padding:18px;border-radius:8px;flex:1 1 200px;min-height:100px}
+.card:hover{
+  border: 2px solid black;
+background-color:#e0f2ff;
+}
+.highlights-section{
+  margin:24px 0
+}
+.highlist{list-style:disc;margin-left:20px;font-weight: bold;color:var(--muted)}
+.cta-row{margin-top:12px}
+
+/* demo preview */
+.demo-cards{display:flex;gap:12px}
+.demo{flex:1;background:#eef3ff;padding:18px;border-radius:8px;text-align:center}
+
+/* footer */
+.site-footer{background:#0b0b0b;color:#ddd;padding:18px 28px;margin-top:28px}
+.footer-inner{display:flex;justify-content:space-between;align-items:center}
+
+/* syllabus & projects */
+.syllabus .box{background:#fff;padding:16px;border-radius:8px;box-shadow:0 4px 12px rgba(10,110,255,0.05);margin:8px}
+.syll-row{display:flex;gap:12px;flex-wrap:wrap}
+
+/* contact */
+.contact-grid{display:flex;gap:12px;flex-wrap:wrap}
+.contact-grid .card{background:#fff;padding:14px;border-radius:8px;flex:1}
+
+/* login */
+.center{display:flex;align-items:center;justify-content:center;min-height:60vh}
+.login-box{background:#fff;padding:24px;border-radius:8px;max-width:420px;width:100%;box-shadow:0 6px 30px rgba(10,110,255,0.06)}
+.login-box input, .login-box textarea{width:100%;padding:10px;margin:8px 0;border:1px solid #ddd;border-radius:6px}
+
+/* dashboard */
+.dashboard{display:flex;gap:18px;padding:18px}
+.side-menu{width:220px;background:#fff;border-radius:8px;padding:16px;box-shadow:0 8px 30px rgba(15,20,30,0.03)}
+.profile{display:flex;flex-direction:column;align-items:center;gap:8px}
+.avatar{font-size:36px}
+.dash-main{flex:1;background:#fff;padding:16px;border-radius:8px}
+.progress-bar{background:#eee;border-radius:8px;height:16px;overflow:hidden}
+#progressFill{background:var(--accent);height:100%;width:10%}
+
+/* utility */
+.btn{display:inline-block;padding:8px 14px;border-radius:6px;border:0;cursor:pointer}
+.btn.primary{background:var(--primary);color:#fff}
+.btn.outline{background:transparent;border:1px solid var(--primary);color:var(--primary)}
+.locked{opacity:0.6;background:#fafafa;padding:12px;border-radius:6px;margin:8px 0}
+
+/* responsive */
+@media(max-width:800px){
+  .cards{flex-direction:column}
+  .hero{min-height:420px;padding:20px}
+  .nav-links{display:none}
+}
+.nav-links :hover{
+  font-size:medium;
+  font-weight: bold;
+  font-family: 'Courier New', Courier, monospace;
+  font: outline;
+ color:white;
+}

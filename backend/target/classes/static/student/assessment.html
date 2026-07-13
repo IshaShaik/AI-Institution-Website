@@ -1,0 +1,1674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Academy | Intelligence Hub</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* --- GLOBAL & SIDEBAR --- */
+        body { margin: 0; font-family: 'Poppins', sans-serif; background: #0b0e14; 
+        /* display: flex; */
+         color: white; overflow-x: hidden; }
+        
+        .sidebar { 
+            width: 240px; height: 100vh; 
+            background-image: url("https://i.pinimg.com/736x/8a/f2/dd/8af2dddeac28709607bd72fe6ec569ea.jpg"); 
+            background-size: cover; background-position: center; 
+            position: fixed; color: white; z-index: 10; 
+        }
+        .sidebar::before { 
+            content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; 
+            background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px); z-index: -1; 
+        }
+        .sidebar h2 { font-size: 22px; padding: 25px 20px; margin: 0; font-weight: 800; color: #00d2ff; }
+        
+        .nav-link { 
+            display: block; padding: 14px 25px; color: rgba(255,255,255,0.7); text-decoration: none; 
+            font-size: 15px; font-weight: 500; transition: all 0.3s ease; border-left: 4px solid transparent; 
+        }
+        .nav-link:hover { background: rgba(255, 255, 255, 0.05); color: white; }
+        .nav-link.active { background: rgba(0, 210, 255, 0.1); color: #00d2ff; border-left: 4px solid #00d2ff; }
+        
+        .user-profile-card { 
+            padding: 15px; margin: 15px; background: rgba(255, 255, 255, 0.05); 
+            border-radius: 15px; display: flex; flex-direction: column; align-items: center; 
+            border: 1px solid rgba(255, 255, 255, 0.1); position: absolute; bottom: 10px; width: 180px;
+        }
+        .profile-circle { width: 50px; height: 50px; border-radius: 50%; border: 2px solid #00d2ff; overflow: hidden; margin-bottom: 5px; }
+        .profile-circle img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* --- MAIN LAYOUT FIX --- */
+        .main-content { 
+            /* border: 5px solid red; */
+            height: 530px;
+            display: flex;
+            margin-left: 240px; 
+            /* width: calc(100% - 240px);  */
+           min-height: calc(100vh - 120px); /* footer space leave */
+            padding: 40px; 
+            box-sizing: border-box;
+        }
+
+        /* Container ko grid banaya taaki dono panels side-by-side rahein */
+        .ai-dashboard-grid { 
+            /* border: 3px solid yellow; */
+           position: absolute;
+           top: 8px;
+           width: calc(100% - 80px);
+           height: 500px;
+    display: grid; 
+    grid-template-columns: 1fr 1fr; /* Dono ko barabar (1fr) kar diya */
+    gap: 30px; 
+    align-items: stretch; /* Ye height barabar rakhega */
+    margin-top: 20px;
+}
+.tab-buttons{
+    /* border: 2px solid yellow; */
+    position: absolute;
+    right: 220px;
+}
+        /* Left Panel */
+        .analytics-panel{ 
+            
+    display: flex; 
+    flex-direction: column; 
+    gap: 20px;
+    height: 100%; 
+}
+#result-display-area{
+    /* border: 3px solid green; */
+    width: 950px;
+    height: 450px;
+    gap: 40px;
+}
+#waitingCard {
+/* border: 5px solid red; */
+height: 350px;
+    width: 400px
+}
+#resultSummaryCard {
+    /* border: 3px solid red; */
+    height: 350px;
+    width: 400px
+ 
+    
+}
+.action-panel{
+    /* border: 5px solid red; */
+    width: 450px;
+    position: absolute;
+    top: 70px;
+    left: 500px;
+}
+.action-panel , .start-assessment-card:hover{
+    border-color: #00d2ff;
+}
+
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        
+        .tab-buttons { display: flex; gap: 10px; background: rgba(255,255,255,0.05); padding: 5px; border-radius: 10px; }
+        .tab-buttons button { background: none; border: none; color: white; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 13px; transition: 0.3s; }
+        .tab-buttons button.active { background: #00d2ff; color: #0b0e14; font-weight: bold; }
+
+        /* Glass Cards */
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.03); 
+            backdrop-filter: blur(15px); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-radius: 20px; 
+            padding: 30px; 
+            position: relative;
+            transition: 0.3s ease;
+        }
+        .glass-card:hover { border-color: #00d2ff; box-shadow: 0 10px 30px rgba(0,210,255,0.1); }
+  
+.result-option{
+    padding:8px 15px;
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(0,210,255,0.2);
+    border-radius:30px;
+    cursor:pointer;
+    font-size:13px;
+    transition:0.3s;
+}
+
+.result-option:hover{
+    background:#00d2ff;
+    color:#000;
+}
+#concept-analytics-area {
+    /* border: 5px solid red;; */
+    width: 950px; /* Viewport width - poori screen ki choudai */
+    /* margin-left: calc(-50vw + 50%); Isey center se khinch kar side tak le jayega */
+    margin-left: 0px;
+    margin-right: calc(-50vw + 50%);
+    padding: 20px 40px; 
+    box-sizing: border-box;
+    display: none; 
+}
+        /* ================= MOTIVATION STRIP ================= */
+
+.motivation-strip-wrapper{
+    margin-top:40px;
+    padding:20px 0;
+    overflow:hidden;
+    width:100%;
+    position:relative;
+    border-top:1px solid rgba(255,255,255,0.05);
+}
+
+
+.motivation-strip{
+    display:inline-block;
+    white-space:nowrap;
+    animation: slideText 25s linear infinite;
+    font-weight:500;
+    font-size:14px;
+    color:#00d2ff;
+}
+
+.motivation-strip span{
+    margin-right:80px;
+}
+
+@keyframes slideText{
+    from{
+        transform: translateX(0);
+    }
+    to{
+        transform: translateX(-50%);
+    }
+}
+/* Smooth move when result shows */
+.move-down{
+    margin-top:30px;
+    transition: all 0.6s ease;
+}
+.page-footer{
+    margin-left:240px;      /* sidebar width */
+    width:calc(100% - 240px);
+    padding:0 40px 40px 40px;
+    box-sizing:border-box;
+}
+
+
+        /* Start Assessment Card */
+        .start-assessment-card { 
+            background: linear-gradient(145deg, rgba(25, 30, 40, 0.9), rgba(10, 12, 18, 0.9));
+            padding: 40px 30px; 
+            border-radius: 25px; 
+            border: 1px solid rgba(0, 210, 255, 0.2);
+            text-align: center;
+        }
+
+
+        /* Buttons & Badges */
+        .glow-button { 
+            background: linear-gradient(45deg, #00d2ff, #9d50bb); border: none; padding: 16px; 
+            color: white; font-weight: bold; border-radius: 12px; cursor: pointer; 
+            box-shadow: 0 5px 20px rgba(0, 210, 255, 0.3); width: 100%; font-size: 15px; transition: 0.3s;
+            margin-top: 15px;
+        }
+        .glow-button:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0, 210, 255, 0.5); }
+
+        /* Animations */
+        .ai-icon-pulse { font-size: 60px; margin-bottom: 20px; animation: pulse 2s infinite; display: inline-block; }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px #00d2ff); }
+            50% { transform: scale(1.1); filter: drop-shadow(0 0 20px #00d2ff); }
+        }
+
+        .robot-icon { font-size: 60px; animation: robotFloat 3s ease-in-out infinite; display: inline-block; }
+        @keyframes robotFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        
+        .scan-bar { width: 80px; height: 4px; background: #00d2ff; margin: 10px auto; border-radius: 10px; box-shadow: 0 0 15px #00d2ff; animation: scanLine 2s linear infinite; }
+        @keyframes scanLine { 0% { transform: translateY(-40px); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(10px); opacity: 0; } }
+
+        .pulse-bg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200px; height: 200px; background: rgba(0, 210, 255, 0.1); border-radius: 50%; filter: blur(40px); z-index: -1; }
+
+        .secure-tag { margin-top: 15px; font-size: 12px; color: #00d2ff; opacity: 0.8; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>AI Academy</h2>
+        <nav>
+            <a href="programhub.html" class="nav-link">Program Hub</a>
+            <a href="dashboard.html" class="nav-link">Student Dashboard</a>
+            <a href="assessment.html" class="nav-link active">Assessment</a>
+            <a href="recommendations.html" class="nav-link">Recommendations</a>
+            <a href="schedule.html" class="nav-link">Program Schedule</a>
+            <a href="live.html" class="nav-link">Live</a>
+            <a href="#" class="nav-link" style="color:#ff4d4d; margin-top:20px;" onclick="logout()">Logout</a>
+        </nav>
+        <div class="user-profile-card">
+            <div class="profile-circle"><img id="sideAvatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"></div>
+            <div style="text-align: center;">
+                <span id="sideName" style="color:white; font-weight: bold; font-size: 14px;">Hi, isha</span><br>
+                <small style="color: #00d2ff;">Active Learner</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="ai-dashboard-grid">
+            
+            <div class="analytics-panel">
+                <div class="header-row">
+                    <h2 style="margin:0;">Curriculum Performance</h2>
+                    <div class="tab-buttons">
+                    <button id="btnOverall" class="active" onclick="switchTab('overall')">Overall Results</button>
+                    <button id="btnConcept" onclick="switchTab('concept')">Concept Analytics</button>
+                     </div>
+                </div>
+
+                <div id="result-display-area">
+                    <div class="glass-card" id="waitingCard" style="display: block; text-align: center; overflow: hidden;">
+                        <div class="pulse-bg"></div>
+                        <div class="robot-icon">🤖</div>
+                        <div class="scan-bar"></div>
+                        <h3 style="color: #00d2ff; margin-top: 20px;">AI is checking your answers!</h3>
+                        <p style="opacity: 0.7; font-size: 14px;">"I am carefully analyzing your logic. Just a little more patience, superstar!"</p>
+                        <div id="lockMessage" style="margin-top: 20px; font-size: 13px; color: #ffcc00; background: rgba(255, 204, 0, 0.1); padding: 8px 15px; border-radius: 30px; display: inline-block;">
+                          Waiting for evaluation...
+                        </div>
+                        
+                    </div>
+                    <div class="glass-card" id="resultSummaryCard" style="display: none; background: linear-gradient(135deg, rgba(0, 210, 255, 0.1), rgba(58, 123, 213, 0.1));">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                            <h3 style="color:#00ff88; margin: 0;">🎉 Assessment Result</h3>
+                            <span id="gradeBadge" style="background: #00ff88; color: #000; padding: 4px 12px; border-radius: 8px; font-weight: bold;">PASS</span>
+                        </div>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px; background: rgba(0,0,0,0.2); padding: 20px; border-radius: 15px;">
+                            <div><small style="color:#888;">Exam</small><br><span id="examName" style="color:#00d2ff;">AI Module Assessment</span></div>
+                            <div><small style="color:#888;">Score Obtained</small><br><span id="obtainedMarks" style="font-weight:bold; font-size: 18px;">4</span></div>
+                            <div><small style="color:#888;">Total Marks</small><br><span id="totalPossibleMarks">7</span></div>
+                            <div><small style="color:#888;">Percentage</small><br><span id="percentageText" style="color:#00ff88; font-weight: bold;">57.14%</span></div>
+                        </div>
+                        <button class="glow-button" onclick="loadFullResult()">VIEW PERFORMANCE REPORT</button>
+                    </div>
+
+                   <div class="action-panel">
+                       <div class="start-assessment-card">
+                       <div class="ai-icon-pulse">🤖</div>
+                       <h3 style="margin-bottom: 10px;">New Assessment</h3>
+                       <p style="font-size: 14px; opacity: 0.7; line-height: 1.6;">
+                        Ready for the next challenge? Start a new proctored session to evaluate your latest skills.
+                        </p>
+                        <button class="glow-button" onclick="launchSystemCheck()">
+                        START ASSESSMENT
+                        </button>
+                        <div class="secure-tag">🔒 AI Proctored Environment</div>
+                      </div>
+                
+                    </div>
+               
+                  </div>
+                  <div id="concept-analytics-area" style="display: none;"></div>
+
+            </div>
+
+         
+           
+        </div>
+
+    </div>
+   <div id="result-history-panel" style="position: fixed; bottom: 20px; right: 20px; background: rgba(0,0,0,0.8); padding: 15px; border-radius: 15px; border: 1px solid #00d2ff; z-index: 1000; width: 220px; backdrop-filter: blur(10px);">
+    <h4 style="color: #00d2ff; margin: 0 0 10px 0; font-size: 14px; text-align: center;">View Mode / History</h4>
+    <div id="history-options" style="display: flex; flex-direction: column; gap: 8px;">
+        <button onclick="changeView('waiting')" style="background: #333; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer; font-size: 12px;">🕒 Waiting Screen</button>
+        </div>
+</div>
+<div id="resultSwitcher" style="
+    position: fixed; bottom: 20px; right: 20px;
+    background: rgba(15, 15, 25, 0.9);
+    border: 1px solid #00d2ff;
+    box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
+    border-radius: 12px; padding: 12px;
+    width: 240px; z-index: 9999; backdrop-filter: blur(10px);">
+    
+    <label style="color:#00d2ff; font-size:12px; font-weight:bold; letter-spacing:1px; text-transform:uppercase;">
+        System View Mode
+    </label>
+
+    <select id="resultDropdown" style="
+        width:100%; margin-top:8px; padding:10px;
+        border-radius:8px; background:#000;
+        color:#00ff88; border:1px solid #333;
+        font-family: 'Courier New', monospace; cursor:pointer;">
+    </select>
+</div>
+        <footer class="page-footer">
+     <div id="motivationContainer" class="motivation-strip-wrapper">
+    <div class="motivation-strip">
+        <span>🚀 Smart thinking detected...</span>
+        <span>💡 Strong concept clarity observed...</span>
+        <span>🧠 Logical reasoning looks promising...</span>
+        <span>🔥 Great effort, keep improving!</span>
+        <span>⚡ AI finalizing your performance...</span>
+        <span>🎯 Almost done, superstar!</span>
+
+
+        <span>🚀 Smart thinking detected...</span>
+    <span>💡 Strong concept clarity observed...</span>
+    <span>🧠 Logical reasoning looks promising...</span>
+    <span>🔥 Great effort, keep improving!</span>
+    <span>⚡ AI finalizing your performance...</span>
+    <span>🎯 Almost done, superstar!</span>
+    </div>
+</div>
+</footer>
+
+    
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+
+<div id="ai-camera-container" style="position: fixed; bottom: 10px; right: 10px; width: 120px; height: 90px; z-index: 9999; border-radius: 10px; overflow: hidden; border: 2px solid #00d2ff; display: none;">
+    <video id="webcamView" autoplay playsinline muted     style="width: 100%; height: 100%; object-fit: cover;"></video>
+    <div id="violationOverlay" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,0,0,0.5);"></div>
+</div>
+
+
+<script>
+    const BASE = "http://localhost:8080";
+    let warningCount = 0;
+    let isExamActive = false;
+    let objectDetector;
+    let questions = [];
+    let currentIndex = 0;
+    let userAnswers = {}; // Answers store karne ke liye naya variable
+
+
+// ================= RESULT NOTIFICATION SYSTEM =================
+
+
+
+    // AI Model Load
+    async function loadAIModel() {
+        objectDetector = await cocoSsd.load();
+        console.log("AI Monitoring System Ready");
+    }
+    loadAIModel();
+
+    function setupSidebarProfile() {
+        const name = localStorage.getItem("userName") || "Learner";
+        const photo = localStorage.getItem("userPhoto");
+        const nameEl = document.getElementById("sideName");
+        const avatarEl = document.getElementById("sideAvatar");
+        if (nameEl) nameEl.innerText = "Hi, " + name;
+        if (avatarEl) {
+            avatarEl.src = (photo && photo !== "null") ? BASE + "/images/" + photo : "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+        }
+    }
+async function loadLatestResult() {
+    const attemptId = localStorage.getItem("attemptId");
+    const waitingBox = document.getElementById("waitingCard");
+    const resultBox = document.getElementById("resultSummaryCard");
+
+    // Debugging ke liye log
+    // console.log("Checking result for Attempt ID:", attemptId);
+
+    if (!attemptId) {
+        // console.warn("Attempt ID nahi mili localStorage mein!");
+        return;
+    }
+
+    try {
+        const res = await fetch(`${BASE}/api/student/exam/result-details/${attemptId}`);
+        const data = await res.json();
+        
+        // console.log("API Response Status:", res.status);
+        // console.log("Data Status from Backend:", data.status);
+
+        // 1. Agar Backend status "LOCKED" bhej raha hai
+        if (data.status === "LOCKED" || res.status === 403) {
+            waitingBox.style.display = "block";
+            resultBox.style.display = "none";
+            
+            if (data.message) {
+                const datePart = data.message.includes(": ") ? data.message.split(": ")[1] : "soon";
+                document.getElementById("lockMessage").innerHTML = `🔒 Unlock Time: <b>${datePart}</b>`;
+            }
+            return;
+        }
+
+        // 2. Agar Status "UNLOCKED" hai (Check spelling carefully)
+        // 
+        if (data.status === "UNLOCKED" || res.ok) {
+
+    const waitingBox = document.getElementById("waitingCard");
+    const resultBox = document.getElementById("resultSummaryCard");
+    const motivation = document.getElementById("motivationContainer");
+
+    waitingBox.style.display = "none";
+    resultBox.style.display = "block";
+
+    // motivation strip ko niche shift karna
+   // if (motivation) {
+      //  motivation.classList.add("move-down");
+       // resultBox.appendChild(motivation);
+   // }
+
+    const obtained = data.totalMarks || 0;
+    const possible = data.totalPossibleMarks || 0;
+    const percentage = possible > 0 ? ((obtained / possible) * 100).toFixed(2) : 0;
+
+    document.getElementById("obtainedMarks").innerText = obtained;
+    document.getElementById("totalPossibleMarks").innerText = possible;
+    document.getElementById("percentageText").innerText = percentage + "%";
+
+    const badge = document.getElementById("gradeBadge");
+    if (percentage >= 40) {
+        badge.innerText = "PASS";
+        badge.style.background = "#00ff88";
+    } else {
+        badge.innerText = "FAIL";
+        badge.style.background = "#ff4d4d";
+    }
+}
+
+        
+    } catch (err) {
+        // console.error("Fetch Error:", err);
+    }
+}
+        async function loadFullResult() {
+            const attemptId = localStorage.getItem("attemptId");
+            localStorage.setItem(`resultViewed_${attemptId}`, "true");
+            
+    hideFooter(); 
+            try {
+                const res = await fetch(`${BASE}/api/student/exam/result-details/${attemptId}`);
+                const data = await res.json();
+
+                if (!res.ok) { alert(data.message); return; }
+
+                let breakdownHTML = "";
+                data.breakdown.forEach((ans, idx) => {
+                    const statusColor = ans.status === "CORRECT" ? "#00ff88" : (ans.status === "PARTIAL" ? "#ffcc00" : "#ff4d4d");
+                    breakdownHTML += `
+                        <div style="background:rgba(255,255,255,0.03); padding:20px; border-radius:15px; margin-bottom:20px; border-left: 5px solid ${statusColor};">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                                <span style="font-weight:bold; color:#00d2ff;">Question ${idx + 1}</span>
+                                <span style="color:${statusColor}; font-weight:bold;">${ans.marksAwarded}/${ans.questionTotalMarks} Marks</span>
+                            </div>
+                            <p style="color:#888; font-size:12px; margin:0;">YOUR ANSWER:</p>
+                            <p style="background:rgba(0,0,0,0.2); padding:10px; border-radius:8px;">${ans.submittedAnswer || 'No answer submitted'}</p>
+                            <div style="background:rgba(0, 210, 255, 0.05); padding:10px; border-radius:8px; border: 1px dashed rgba(0, 210, 255, 0.3);">
+                                <p style="color:#00d2ff; font-size:12px; margin:0;">🤖 AI FEEDBACK:</p>
+                                <p style="font-style:italic; font-size:14px; margin:5px 0 0 0;">${ans.aiFeedback}</p>
+                            </div>
+                        </div>`;
+                });
+
+                document.querySelector(".main-content").innerHTML = `
+                    <div style="max-width:800px; margin:auto; animation: fadeIn 0.5s ease;">
+                        <h2 style="text-align:center;">Exam Performance Report</h2>
+                        <div style="text-align:center; margin-bottom:30px;">
+                            <span style="background:linear-gradient(90deg, #00d2ff, #3a7bd5); padding:10px 25px; border-radius:30px; font-weight:bold;">
+                                Final Score: ${data.totalMarks} / ${data.totalPossibleMarks}
+                            </span>
+                        </div>
+                        ${breakdownHTML}
+                        <button onclick="location.reload()" class="glow-button" style="margin-top:20px;">Back to Dashboard</button>
+                    </div>`;
+            } catch (err) {
+                alert("Error loading report");
+            }
+        }
+    function logout() {
+        if (confirm("Logout?")) {
+            localStorage.clear();
+            window.location.href = "indexbackend.html";
+        }
+    }
+    
+    let resultCheckInterval = null;
+
+async function checkResultNotification() {
+    const attemptId = localStorage.getItem("attemptId");
+    if (!attemptId) return;
+
+    try {
+        const res = await fetch(`${BASE}/api/student/exam/result-details/${attemptId}`);
+        if (!res.ok) return;
+
+        const data = await res.json();
+
+        // Agar result unlock ho gaya hai
+        if (data.status !== "LOCKED") {
+
+            const viewedKey = `resultViewed_${attemptId}`;
+            const alreadyViewed = localStorage.getItem(viewedKey);
+
+            if (!alreadyViewed) {
+                showResultPopup();
+            }
+        }
+
+    } catch (err) {
+        console.log("Result check running...");
+    }
+}
+
+function showResultPopup() {
+
+    if (document.getElementById("resultPopupBox")) return;
+
+    const popup = document.createElement("div");
+    popup.id = "resultPopupBox";
+
+    // Styling directly JS se
+    popup.style.position = "fixed";
+    popup.style.top = "-200px";
+    popup.style.left = "50%";
+    popup.style.transform = "translateX(-50%)";
+    popup.style.background = "linear-gradient(45deg,#00d2ff,#9d50bb)";
+    popup.style.padding = "25px 35px";
+    popup.style.borderRadius = "20px";
+    popup.style.color = "white";
+    popup.style.boxShadow = "0 20px 40px rgba(0,0,0,0.4)";
+    popup.style.zIndex = "99999";
+    popup.style.width = "380px";
+    popup.style.textAlign = "center";
+    popup.style.transition = "top 0.6s ease";
+
+    popup.innerHTML = `
+        <div style="position:absolute; top:8px; right:12px; cursor:pointer; font-size:18px;" onclick="closeResultPopup()">✖</div>
+        <h3 style="margin-top:10px;">🎉 Your Result is Released!</h3>
+        <p style="font-size:14px; opacity:0.9;">
+            Click below to view your detailed performance report.
+        </p>
+        <button onclick="goToAssessment()" 
+            style="margin-top:15px; padding:10px 18px; border:none; border-radius:10px; cursor:pointer; font-weight:bold;">
+            View Result
+        </button>
+    `;
+
+    document.body.appendChild(popup);
+
+    // Animation trigger
+    setTimeout(() => {
+        popup.style.top = "30px";
+    }, 50);
+}
+function closeResultPopup() {
+    const popup = document.getElementById("resultPopupBox");
+    if (popup) popup.remove();
+}
+
+function goToAssessment() {
+    const attemptId = localStorage.getItem("attemptId");
+    localStorage.setItem(`resultViewed_${attemptId}`, "true");
+
+    const popup = document.getElementById("resultPopupBox");
+    if (popup) popup.remove();
+
+    loadFullResult(); // direct result open karega
+}
+    window.addEventListener("DOMContentLoaded", () => {
+    setupSidebarProfile();
+    loadLatestResult();   // 👈 YE ADD KARO
+     // 🔔 Har 10 second me result check karega
+        setInterval(loadLatestResult, 5000);
+    checkResultNotification();
+    resultCheckInterval = setInterval(checkResultNotification, 10000);
+});
+window.switchTab = function(tabName) {
+    const overallArea = document.getElementById("result-display-area");
+    const conceptArea = document.getElementById("concept-analytics-area");
+    const actionPanel = document.querySelector(".action-panel");
+    const btnOverall = document.getElementById("btnOverall");
+    const btnConcept = document.getElementById("btnConcept");
+    const dropdown = document.getElementById("resultDropdown");
+
+    if (tabName === 'overall') {
+        btnOverall.classList.add("active");
+        btnConcept.classList.remove("active");
+
+        overallArea.style.display = "block";
+        if (conceptArea) conceptArea.style.display = "none";
+        if (actionPanel) actionPanel.style.display = "block";
+
+        // Agar user ne dropdown se select kiya hai toh wahi dikhao, 
+        // warna default refresh karo
+        if (dropdown && dropdown.value !== "waiting" && isManualView) {
+            showReleasedResult(dropdown.value);
+        } else if (typeof loadLatestResult === "function") {
+            loadLatestResult();
+        }
+    } 
+    
+    else if (tabName === 'concept') {
+        // "Waiting Mode" mein analytics nahi dikhayenge
+        if (dropdown && dropdown.value === "waiting") {
+            alert("Analytics available only after selecting a result.");
+            return;
+        }
+
+        btnConcept.classList.add("active");
+        btnOverall.classList.remove("active");
+
+        overallArea.style.display = "none";
+        if (actionPanel) actionPanel.style.display = "none";
+        
+        if (conceptArea) {
+            conceptArea.style.display = "block";
+            // ✅ Dropdown ki current value pass kar rahe hain
+            loadConceptAnalytics(dropdown.value); 
+        }
+    }
+}
+// window.switchTab = function(tabName) {
+//     const overallArea = document.getElementById("result-display-area");
+//     const conceptArea = document.getElementById("concept-analytics-area");
+//     const actionPanel = document.querySelector(".action-panel");
+//     const btnOverall = document.getElementById("btnOverall");
+//     const btnConcept = document.getElementById("btnConcept");
+
+//     if (tabName === 'overall') {
+//         btnOverall.classList.add("active");
+//         btnConcept.classList.remove("active");
+
+//         // ✅ Overall dikhao, Concept chhupao
+//         overallArea.style.display = "block";
+//         if (conceptArea) conceptArea.style.display = "none";
+//         if (actionPanel) actionPanel.style.display = "block";
+
+//         // Refresh cards state (Waiting vs Summary)
+//         if (typeof loadLatestResult === "function") {
+//             loadLatestResult();
+//         }
+//     } 
+//     else if (tabName === 'concept') {
+//         btnConcept.classList.add("active");
+//         btnOverall.classList.remove("active");
+
+//         // ✅ Concept dikhao, Overall chhupao
+//         overallArea.style.display = "none";
+//         if (actionPanel) actionPanel.style.display = "none";
+        
+//         if (conceptArea) {
+//             conceptArea.style.display = "block";
+//             loadConceptAnalytics(); // Analytics ko naye area mein load karega
+//         }
+//     }
+// }
+/* ============================================= */
+/* UPDATED: RESULT SWITCHER & AUTO-JUMP FIX      */
+/* ============================================= */
+
+let isManualView = false; // Background auto-refresh ko rokne ke liye
+
+window.addEventListener("DOMContentLoaded", () => {
+    renderResultDropdown();
+    syncReleasedResults();
+    
+    // Har 5 second mein auto-update check karega
+    setInterval(loadLatestResult, 5000);
+});
+
+// 1. Dropdown setup aur User Selection handle karna
+function renderResultDropdown() {
+    const dropdown = document.getElementById("resultDropdown");
+    if(!dropdown) return;
+    
+    dropdown.innerHTML = "";
+
+    // Default Waiting Option
+    const waitingOption = document.createElement("option");
+    waitingOption.value = "waiting";
+    waitingOption.text = "🕒 Waiting Mode / Next Assessment";
+    dropdown.appendChild(waitingOption);
+
+    // Released Results list
+    const released = JSON.parse(localStorage.getItem("releasedResults") || "[]");
+    released.forEach((id, index) => {
+        const option = document.createElement("option");
+        option.value = id;
+        option.text = `✅ Assessment ${index + 1} Result`;
+        dropdown.appendChild(option);
+    });
+
+    // Dropdown change hone par auto-refresh block karein
+    dropdown.addEventListener("change", function () {
+        isManualView = true; // User ne manual select kiya, ab auto-update ruk jayega
+        
+        if (this.value === "waiting") {
+            showWaitingBox();
+        } else {
+            showReleasedResult(this.value);
+        }
+    });
+}
+
+// 2. Background update function (Isme fix lagaya hai)
+async function loadLatestResult() {
+    // AGAR USER NE DROPDOWN CHHEDA HAI, TOH YE FUNCTION KUCH NAHI KAREGA
+    if (isManualView) return; 
+
+    const attemptId = localStorage.getItem("attemptId");
+    if (!attemptId) return;
+
+    try {
+        const res = await fetch(`${BASE}/api/student/exam/result-details/${attemptId}`);
+        const data = await res.json();
+        
+        // Agar Locked hai
+        if (data.status === "LOCKED" || res.status === 403) {
+            showWaitingBox();
+            if (data.message) {
+                const datePart = data.message.includes(": ") ? data.message.split(": ")[1] : "soon";
+                document.getElementById("lockMessage").innerHTML = `🔒 Unlock Time: <b>${datePart}</b>`;
+            }
+        } 
+        // Agar Unlock ho gaya
+        else if (data.status === "UNLOCKED" || res.ok) {
+            updateResultUI(data);
+        }
+    } catch (err) { console.log("Checking..."); }
+}
+
+// 3. UI Update Logic (Marks dikhane ke liye)
+function updateResultUI(data) {
+    document.getElementById("waitingCard").style.display = "none";
+    document.getElementById("resultSummaryCard").style.display = "block";
+
+    const obtained = data.totalMarks || 0;
+    const possible = data.totalPossibleMarks || 0;
+    const percentage = possible > 0 ? ((obtained / possible) * 100).toFixed(2) : 0;
+
+    document.getElementById("obtainedMarks").innerText = obtained;
+    document.getElementById("totalPossibleMarks").innerText = possible;
+    document.getElementById("percentageText").innerText = percentage + "%";
+
+    const badge = document.getElementById("gradeBadge");
+    if (percentage >= 40) {
+        badge.innerText = "PASS"; badge.style.background = "#00ff88";
+    } else {
+        badge.innerText = "FAIL"; badge.style.background = "#ff4d4d";
+    }
+
+    // Concept Analytics enable karna
+    const btnConcept = document.getElementById("btnConcept");
+    if (btnConcept) {
+        btnConcept.style.pointerEvents = "auto";
+        btnConcept.style.opacity = "1";
+    }
+}
+
+// 4. Waiting View (Concept analytics block karne ke saath)
+function showWaitingBox() {
+    document.getElementById("waitingCard").style.display = "block";
+    document.getElementById("resultSummaryCard").style.display = "none";
+
+    const btnConcept = document.getElementById("btnConcept");
+    if (btnConcept) {
+        btnConcept.style.pointerEvents = "none";
+        btnConcept.style.opacity = "0.4";
+    }
+}
+
+// 5. Specific Result fetch karna dropdown se
+// async function showReleasedResult(attemptId) {
+//     try {
+//         const res = await fetch(`${BASE}/api/student/exam/result-details/${attemptId}`);
+//         const data = await res.json();
+//         updateResultUI(data);
+//     } catch (e) { alert("Error loading result"); }
+// }
+async function showReleasedResult(attemptId) {
+    try {
+        const res = await fetch(`http://localhost:8080/api/student/exam/result-details/${attemptId}`);
+        const data = await res.json();
+
+        // 1. Update UI (Marks, Percentage, Pass/Fail)
+        updateResultUI(data);
+
+        // 2. Refresh Analytics data in background
+        // Agar user 'Concept' tab par baitha hai, toh data turant change ho jayega
+        loadConceptAnalytics(attemptId);
+
+        const btnConcept = document.getElementById("btnConcept");
+        if (btnConcept) {
+            btnConcept.style.pointerEvents = "auto";
+            btnConcept.style.opacity = "1";
+        }
+    } catch (e) {
+        console.error("Error loading result details:", e);
+    }
+}
+// 6. LocalStorage Sync (Naye results ko dropdown mein add karne ke liye)
+async function syncReleasedResults() {
+    const attemptId = localStorage.getItem("attemptId");
+    if (!attemptId) return;
+
+    try {
+        const res = await fetch(`${BASE}/api/student/exam/result-details/${attemptId}`);
+        const data = await res.json();
+        if (data.status !== "LOCKED") {
+            let released = JSON.parse(localStorage.getItem("releasedResults") || "[]");
+            if (!released.includes(attemptId)) {
+                released.push(attemptId);
+                localStorage.setItem("releasedResults", JSON.stringify(released));
+                renderResultDropdown();
+            }
+        }
+    } catch (e) { }
+}
+function hideFooter() {
+    const footer = document.querySelector(".page-footer");
+    if (footer) {
+        footer.style.display = "none";
+    }
+}
+    async function launchSystemCheck() {
+
+    hideFooter(); 
+        // Camera container dikhao
+        document.getElementById('ai-camera-container').style.display = 'block';
+        
+        const dashboardGrid = document.querySelector('.ai-dashboard-container');
+        if (dashboardGrid) dashboardGrid.style.display = 'none';
+
+        const mainContent = document.querySelector('.main-content');
+        mainContent.innerHTML = `
+            <style>
+                .system-check-wrapper {text-align: center; padding: 40px 20px; color: #ffffff; font-family: 'Inter', sans-serif; }
+                .check-container {display: flex; justify-content: center; align-items: center; max-width: 1100px; margin: 40px auto; gap: 50px; flex-wrap: wrap;}
+                .check-box { display: flex; flex-direction: column; align-items: center; transition: transform 0.3s ease; }
+                .circle-status {width: 160px; height: 160px; border-radius: 50%; border: 3px solid #333; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.03); overflow: hidden; }
+                .status-icon { font-size: 45px; }
+                .status-text { margin-top: 18px; font-size: 14px; font-weight: 500; }
+                #cameraSelect { margin-top: 15px; width: 180px; padding: 10px; border-radius: 8px; background: #1a1d23; color: #ccc; border: 1px solid #444; font-size: 11px; cursor: pointer; }
+                .btn-retry { padding: 14px 30px; border-radius: 30px; border: 1px solid #444; background: transparent; color: #999; cursor: pointer; font-weight: 600; }
+                .btn-start { padding: 14px 45px; border-radius: 30px; border: none; background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); color: #fff; font-weight: bold; cursor: not-allowed; opacity: 0.4; }
+                .btn-start.active { opacity: 1; cursor: pointer; transform: scale(1.05); }
+            </style>
+
+            <div class="system-check-wrapper">
+                <h1>System Compatibility Check</h1>
+                <p style="color: #888;">Ensure your devices are working properly before starting</p>
+                <div class="check-container">
+                    <div class="check-box">
+                        <div id="camCircle" class="circle-status" style="border-color: #ff4d4d;">
+                            <span id="camIcon" class="status-icon">📷</span>
+                        </div>
+                        <select id="cameraSelect"></select>
+                        <p id="camText" class="status-text" style="color: #ff4d4d;">✕ Video not verified</p>
+                    </div>
+                    <div class="check-box">
+                        <div class="circle-status" style="border-color: #00ff88;"><span class="status-icon">🔊</span></div>
+                        <p class="status-text" style="color: #00ff88;">✔ Audio Output</p>
+                    </div>
+                    <div class="check-box">
+                        <div id="micCircle" class="circle-status" style="border-color: #ff4d4d;"><span class="status-icon">🎙️</span></div>
+                        <p id="micText" class="status-text" style="color: #ff4d4d;">✕ Mic not detected</p>
+                    </div>
+                </div>
+                <div class="action-area">
+                    <button class="btn-retry" onclick="location.reload()">RETRY CHECK</button>
+                    <button id="nextBtn" class="btn-start" onclick="beginExamLogic()" disabled>NEXT</button>
+                </div>
+            </div>
+        `;
+
+        const videoElement = document.getElementById('webcamView');
+        const cameraSelect = document.getElementById('cameraSelect');
+        const nextBtn = document.getElementById('nextBtn');
+
+        async function startCamera(deviceId) {
+            if (window.currentStream) window.currentStream.getTracks().forEach(t => t.stop());
+            const constraints = { 
+                video: deviceId ? { deviceId: { exact: deviceId } } : true, 
+                audio: true 
+            };
+            
+            try {
+               const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        window.currentStream = stream;
+                videoElement.srcObject = stream;
+                videoElement.muted = true; 
+        videoElement.volume = 0;
+                
+                document.getElementById('camCircle').style.borderColor = '#00ff88';
+                document.getElementById('camText').innerHTML = '✔ Video verified';
+                document.getElementById('camText').style.color = '#00ff88';
+                
+                document.getElementById('micCircle').style.borderColor = '#00ff88';
+                document.getElementById('micText').innerHTML = '✔ Mic detected';
+                document.getElementById('micText').style.color = '#00ff88';
+                
+                nextBtn.disabled = false;
+                nextBtn.classList.add('active');
+            } catch (err) { console.error(err); }
+        }
+
+        navigator.mediaDevices.enumerateDevices().then(devices => {
+            devices.filter(d => d.kind === 'videoinput').forEach(d => {
+                const opt = document.createElement('option');
+                opt.value = d.deviceId;
+                opt.text = d.label || `Camera ${cameraSelect.length + 1}`;
+                cameraSelect.appendChild(opt);
+            });
+        });
+
+        cameraSelect.onchange = () => startCamera(cameraSelect.value);
+        startCamera();
+    }
+
+    async function startMonitoring() {
+        if (!isExamActive) return;
+        const video = document.getElementById('webcamView');
+        if(!video || !objectDetector) { setTimeout(startMonitoring, 2000); return; }
+
+        try {
+            const predictions = await objectDetector.detect(video);
+            let persons = predictions.filter(p => p.class === "person").length;
+            let phone = predictions.some(p => p.class === "cell phone");
+
+            if (persons > 1) triggerWarning("Multiple People Detected!");
+            if (phone) triggerWarning("Mobile Phone Detected!");
+        } catch(e) { console.log("Detection error"); }
+        
+        setTimeout(startMonitoring, 3000);
+    }
+
+    document.addEventListener("visibilitychange", () => {
+        if (document.hidden && isExamActive) triggerWarning("Tab Switching!");
+    });
+
+   function triggerWarning(reason) {
+    // Strict Check: Agar exam active nahi hai to return kar jao
+    if (!isExamActive) return;
+
+    warningCount++;
+    const overlay = document.getElementById('violationOverlay');
+    if(overlay) {
+        overlay.style.display = 'block';
+        setTimeout(() => overlay.style.display = 'none', 800);
+    }
+    
+    alert(`⚠️ AI WARNING: ${reason}`);
+    
+    if (warningCount >= 3) {
+        isExamActive = false; // Stop monitoring
+        alert("Terminated: Too many violations.");
+        location.reload();
+    }
+}
+
+    window.addEventListener("DOMContentLoaded", () => {
+        setupSidebarProfile();
+        const chartEl = document.getElementById('performanceChart');
+        if(chartEl) {
+            const ctx = chartEl.getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Breadboard', 'Ohm\'s Law', 'Voltage', 'Current'],
+                    datasets: [{
+                        label: 'Concept Mastery',
+                        data: [10, 50, 90, 85],
+                        backgroundColor: ['#ff4b2b', '#ff9068', '#00d2ff', '#9d50bb'],
+                        borderRadius: 8
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+        }
+    });
+
+    function beginExamLogic() {
+        showAssessmentCard();
+    }
+
+//    function showAssessmentCard() {
+//     const mainContent = document.querySelector('.main-content');
+    
+//     const assessmentData = {
+//         level: "Level 1: Robotics Foundation",
+//         part: "Part A: Electronic Components",
+//         module: "Module 3: Sensor Integration",
+//         topic: "Ultrasonic Sensors",
+//         totalQuestions: 20,
+//         timeLimit: "60 Minutes",
+//         passingScore: "12/20 (60%)"
+//     };
+
+//     mainContent.innerHTML = `
+//         <div class="assessment-container" style="animation: slideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1); max-width: 950px; margin: 40px auto;">
+//             <div class="glass-card" style="padding: 45px; border-radius: 30px; background: rgba(10, 15, 25, 0.9); border: 1px solid rgba(0, 210, 255, 0.15); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+                
+//                 <div style="text-align: left; margin-bottom: 35px; border-left: 5px solid #00d2ff; padding-left: 25px;">
+//                     <div style="display: flex; align-items: center; gap: 10px; color: #00d2ff; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px;">
+//                         <span>${assessmentData.level}</span>
+//                         <span style="opacity: 0.4;">/</span>
+//                         <span>${assessmentData.part}</span>
+//                     </div>
+//                     <h1 style="font-size: 36px; margin: 0; color: white; letter-spacing: -0.5px;">
+//                         ${assessmentData.module}: <span style="color: #9d50bb; font-weight: 300;">${assessmentData.topic}</span>
+//                     </h1>
+//                     <p style="color: #666; margin-top: 5px; font-size: 14px;">Please review the module summary before proceeding to the final certification exam.</p>
+//                 </div>
+
+//                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-bottom: 40px;">
+//                     <div style="background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01)); padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); text-align: center;">
+//                         <span style="font-size: 28px; display: block; margin-bottom: 10px;">📋</span>
+//                         <small style="color: #888; text-transform: uppercase; font-size: 10px; letter-spacing: 1px;">Assessment</small>
+//                         <div style="font-size: 20px; font-weight: 600; color: #fff;">${assessmentData.totalQuestions} Questions</div>
+//                     </div>
+//                     <div style="background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01)); padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); text-align: center;">
+//                         <span style="font-size: 28px; display: block; margin-bottom: 10px;">🕒</span>
+//                         <small style="color: #888; text-transform: uppercase; font-size: 10px; letter-spacing: 1px;">Time Limit</small>
+//                         <div style="font-size: 20px; font-weight: 600; color: #fff;">${assessmentData.timeLimit}</div>
+//                     </div>
+//                     <div style="background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01)); padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); text-align: center;">
+//                         <span style="font-size: 28px; display: block; margin-bottom: 10px;">🎯</span>
+//                         <small style="color: #888; text-transform: uppercase; font-size: 10px; letter-spacing: 1px;">Passing Score</small>
+//                         <div style="font-size: 20px; font-weight: 600; color: #00ff88;">${assessmentData.passingScore}</div>
+//                     </div>
+//                 </div>
+
+//                 <div style="background: rgba(0, 210, 255, 0.03); padding: 30px; border-radius: 20px; border: 1px solid rgba(0, 210, 255, 0.1); margin-bottom: 40px;">
+//                     <h4 style="margin: 0 0 15px 0; color: #00d2ff; display: flex; align-items: center; gap: 10px; font-size: 16px;">
+//                         <span style="background: #00d2ff; width: 8px; height: 8px; border-radius: 50%;"></span>
+//                         Knowledge Domain: ${assessmentData.topic}
+//                     </h4>
+//                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+//                         <ul style="color: #aaa; font-size: 14px; padding-left: 20px; line-height: 2; margin: 0;">
+//                             <li>Core principles of ${assessmentData.topic}</li>
+//                             <li>Component identification and wiring</li>
+//                         </ul>
+//                         <ul style="color: #aaa; font-size: 14px; padding-left: 20px; line-height: 2; margin: 0;">
+//                             <li>Logic-based programming challenges</li>
+//                             <li>Troubleshooting & Error handling</li>
+//                         </ul>
+//                     </div>
+//                 </div>
+
+//                 <div style="text-align: right;">
+//                     <button class="glow-button" style="width: 240px; height: 65px; font-size: 16px; border-radius: 50px; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: 0.4s;" 
+//                             onclick="showJozunaStyleInstructions()">
+//                         NEXT STEP ❯
+//                     </button>
+//                 </div>
+//             </div>
+//         </div>
+//     `;
+// }
+async function showAssessmentCard() {
+    try {
+        const response = await fetch('http://localhost:8080/api/exam/current');
+        if (!response.ok) throw new Error("Backend not responding");
+        
+        const data = await response.json();
+
+        if (!data.levelName) {
+            document.querySelector('.main-content').innerHTML = "<h2 style='color:white; text-align:center;'>No Live Exam Published Yet.</h2>";
+            return;
+        }
+
+        const mainContent = document.querySelector('.main-content');
+        
+        // Purana design + Admin ka dynamic data
+        mainContent.innerHTML = `
+            <div class="assessment-container" style="max-width: 1000px; margin: 0px auto">
+                <h2 style="color:white;">Assessment Card</h2>
+                <div class="glass-card" style="padding: 45px; border-radius: 30px; background: rgba(10, 15, 25, 0.9); border:1px solid rgba(0, 210, 255, 0.2);color: white;width:800px;">
+                    
+                    <div style="border-left: 5px solid #00d2ff; padding-left: 20px; margin-bottom: 30px;">
+                        <div style="color:#00d2ff; font-size:12px; font-weight:bold; text-transform:uppercase;">
+                            ${data.levelName} / ${data.partName}
+                        </div>
+                        <h1 style="font-size:36px; margin:10px 0;">
+                            ${data.moduleName}: <span style="color:#9d50bb;">${data.topicName}</span>
+                        </h1>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px;">
+                        <div style="background:rgba(255,255,255,0.05); padding:20px; border-radius:15px; text-align:center;">
+                            <small style="color:#888;">QUESTIONS</small>
+                            <div style="font-size:22px; font-weight:bold;">${data.totalQuestions}</div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.05); padding:20px; border-radius:15px; text-align:center;">
+                            <small style="color:#888;">TIME LIMIT</small>
+                            <div style="font-size:22px; font-weight:bold;">${data.timeLimit}</div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.05); padding:20px; border-radius:15px; text-align:center;">
+                            <small style="color:#888;">PASSING SCORE</small>
+                            <div style="color:#00ff88; font-size:22px; font-weight:bold;">${data.passingScore}</div>
+                        </div>
+                    </div>
+
+                    <div class="exam-instructions" style="margin-bottom: 30px; color: #ccc; font-size: 14px; line-height: 1.6;">
+                        <h3 style="color: white; font-size: 18px;">Instructions:</h3>
+                        <ul>
+                            <li>Ensure you have a stable internet connection.</li>
+                            <li>Once you start, the timer cannot be paused.</li>
+                            <li>The assessment covers all topics mentioned in the current module.</li>
+                        </ul>
+                    </div>
+
+                    <div style="text-align: right;">
+                    <button class="glow-button" style="width: 240px; height: 65px; font-size: 16px; border-radius: 50px; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: 0.4s;" 
+                            onclick="showJozunaStyleInstructions()">
+                        NEXT STEP ❯
+                    </button>                 </div>
+                </div>
+            </div>`;
+
+        // Button Click Event - vahi purana logic jo work karta tha
+        document.getElementById('startBtn').addEventListener('click', function() {
+            startExam(); // Ye aapka wo purana function hai jo page change karta tha
+        });
+
+    } catch (error) {
+        console.error("Error:", error);
+    }
+}
+function showJozunaStyleInstructions() {
+    const mainContent = document.querySelector('.main-content');
+    
+    // Website data for consistency
+    const examData = {
+        title: "Final Assessment Protocol",
+        topic: "Ultrasonic Sensors",
+        questions: 20,
+        duration: "60 Minutes",
+        warningsAllowed: 3
+    };
+
+    mainContent.innerHTML = `
+        <div class="instructions-wrapper" style="animation: fadeIn 0.5s ease-out; max-width: 1000px; margin: 30px auto; font-family: 'Inter', sans-serif;">
+            
+            <div style="text-align: center; margin-bottom: 35px;">
+                <h2 style="color: white; font-size: 32px; font-weight: 600; margin-bottom: 10px;">Exam <span style="color: #00d2ff;">Instructions</span></h2>
+                <p style="color: red; font-size: 15px;">Please read the following guidelines carefully before starting the session.</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 40px;">
+                
+                <div style="background: #ffffff; padding: 25px; border-radius: 16px; display: flex; align-items: center; gap: 20px; transition: transform 0.3s ease;">
+                    <div style="background: #e3f2fd; padding: 15px; border-radius: 12px;">🕒</div>
+                    <div>
+                        <h4 style="margin: 0; color: #333; font-size: 16px;">Duration</h4>
+                        <p style="margin: 5px 0 0; color: #666; font-size: 13px;">You have exactly <b>${examData.duration}</b> to complete the test.</p>
+                    </div>
+                </div>
+
+                <div style="background: #ffffff; padding: 25px; border-radius: 16px; display: flex; align-items: center; gap: 20px;">
+                    <div style="background: #f3e5f5; padding: 15px; border-radius: 12px;">📝</div>
+                    <div>
+                        <h4 style="margin: 0; color: #333; font-size: 16px;">Structure</h4>
+                        <p style="margin: 5px 0 0; color: #666; font-size: 13px;">Total <b>${examData.questions} MCQs</b> covering all module topics.</p>
+                    </div>
+                </div>
+
+                <div style="background: #ffffff; padding: 25px; border-radius: 16px; display: flex; align-items: center; gap: 20px;">
+                    <div style="background: #fff3e0; padding: 15px; border-radius: 12px;">⚠️</div>
+                    <div>
+                        <h4 style="margin: 0; color: #333; font-size: 16px;">Warnings</h4>
+                        <p style="margin: 5px 0 0; color: #666; font-size: 13px;">System will allow only <b>${examData.warningsAllowed} warnings</b> before termination.</p>
+                    </div>
+                </div>
+
+                <div style="background: #ffffff; padding: 25px; border-radius: 16px; display: flex; align-items: center; gap: 20px;">
+                    <div style="background: #ffebee; padding: 15px; border-radius: 12px;">🚫</div>
+                    <div>
+                        <h4 style="margin: 0; color: #333; font-size: 16px;">Restrictions</h4>
+                        <p style="margin: 5px 0 0; color: #666; font-size: 13px;">Using phones or switching browser tabs is strictly prohibited.</p>
+                    </div>
+                </div>
+
+                <div style="background: #ffffff; padding: 25px; border-radius: 16px; display: flex; align-items: center; gap: 20px;">
+                    <div style="background: #e8f5e9; padding: 15px; border-radius: 12px;">🎥</div>
+                    <div>
+                        <h4 style="margin: 0; color: #333; font-size: 16px;">Proctoring</h4>
+                        <p style="margin: 5px 0 0; color: #666; font-size: 13px;">AI Camera proctoring must be active throughout the exam.</p>
+                    </div>
+                </div>
+
+                <div style="background: #ffffff; padding: 25px; border-radius: 16px; display: flex; align-items: center; gap: 20px;">
+                    <div style="background: #ede7f6; padding: 15px; border-radius: 12px;">✅</div>
+                    <div>
+                        <h4 style="margin: 0; color: #333; font-size: 16px;">Auto-Submit</h4>
+                        <p style="margin: 5px 0 0; color: #666; font-size: 13px;">The exam will auto-submit when the timer hits zero.</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.1); padding: 30px; border-radius: 20px; text-align: center;">
+                <label style="display: flex; align-items: center; justify-content: center; gap: 12px; cursor: pointer; color: #bbb; margin-bottom: 25px;">
+                    <input type="checkbox" id="confirmCheckbox" style="width: 20px; height: 20px; accent-color: #00d2ff;">
+                    <span style="font-size: 15px;">I have read the rules and I am ready to start the assessment.</span>
+                </label>
+
+                <button id="startBtn" disabled 
+                    style="background: #333; color: #666; border: none; padding: 18px 80px; border-radius: 50px; font-size: 18px; font-weight: 700; cursor: not-allowed; transition: all 0.4s ease;"
+                    onclick="showPasswordPage()"
+>
+                    NEXT STEP </button>
+            </div>
+        </div>
+    `;
+
+    // Logic to enable button only when checkbox is checked
+    const checkbox = document.getElementById('confirmCheckbox');
+    const startBtn = document.getElementById('startBtn');
+
+    checkbox.addEventListener('change', function() {
+        if (this.checked) {
+            startBtn.disabled = false;
+            startBtn.style.background = 'linear-gradient(45deg, #00d2ff, #9d50bb)';
+            startBtn.style.color = 'white';
+            startBtn.style.cursor = 'pointer';
+            startBtn.style.boxShadow = '0 10px 25px rgba(0, 210, 255, 0.3)';
+        } else {
+            startBtn.disabled = true;
+            startBtn.style.background = '#333';
+            startBtn.style.color = '#666';
+            startBtn.style.cursor = 'not-allowed';
+            startBtn.style.boxShadow = 'none';
+        }
+    });
+}
+
+    function showPasswordPage() {
+        const mainContent = document.querySelector('.main-content');
+        mainContent.innerHTML = `
+            <div style="max-width:500px; margin:80px auto; text-align:center; background:rgba(255,255,255,0.05); padding:40px; border-radius:20px; border:1px solid rgba(0,210,255,0.2);">
+                <h2 style="color:#00d2ff;">🔐 Enter Exam Password</h2>
+                <input type="password" id="examPassword" placeholder="Exam Password" style="width:100%; padding:15px; margin:20px 0; border-radius:10px;">
+                <button onclick="verifyPassword()" style="width:100%; padding:15px; background:linear-gradient(45deg,#00d2ff,#9d50bb); color:white; border:none; border-radius:12px; cursor:pointer;">START EXAM</button>
+                <p id="passwordMsg" style="margin-top:15px; color:red;"></p>
+            </div>
+        `;
+    }
+
+ function verifyPassword() {
+    const pwd = document.getElementById("examPassword").value;
+    const msg = document.getElementById("passwordMsg");
+    
+    // 🛑 FIX: Yahan 'studentId' ki jagah 'userId' check karein 
+    // kyunki aapke login page ne 'userId' naam se data save kiya hai.
+    let studentId = localStorage.getItem("studentId"); 
+    
+    if (!studentId) {
+        studentId = localStorage.getItem("userId"); // Agar studentId nahi mili toh userId check karo
+    }
+
+    if (!studentId || studentId === "null" || studentId === "undefined") {
+        msg.style.color = "red";
+        msg.innerText = "❌ Student ID not found. Please login again.";
+        console.error("Local Storage Error: Neither studentId nor userId found.");
+        return;
+    }
+
+    if (!pwd) {
+        msg.style.color = "red";
+        msg.innerText = "❌ Password required";
+        return;
+    }
+
+    msg.style.color = "#00d2ff";
+    msg.innerText = "⏳ Verifying...";
+
+    fetch(`${BASE}/api/student/exam/start`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            studentId: studentId.toString(), // Yahan ab sahi ID jayegi
+            password: pwd
+        })
+    })
+    .then(async res => {
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Server Error");
+        return data;
+    })
+    .then(data => {
+        if (data.status === "BLOCKED") {
+            msg.style.color = "red";
+            msg.innerText = "❌ " + data.message;
+        } else if (data.status === "STARTED") {
+            msg.style.color = "lightgreen";
+            msg.innerText = "✅ Starting Exam...";
+            // 🛑 YE ADD KAREIN: Purana exam resume karne par camera on karna
+            document.getElementById('ai-camera-container').style.display = 'block'; 
+            isExamActive = true; 
+            startMonitoring();
+            // Exam details save karein
+            localStorage.setItem("attemptId", data.attemptId);
+            localStorage.setItem("questionSet", data.set);
+            localStorage.setItem("examLevelId", data.levelId);
+            localStorage.setItem("examPartId", data.partId);
+            localStorage.setItem("examModuleId", data.moduleId);
+
+            setTimeout(() => actuallyStartExam(), 1000);
+        }
+    })
+    .catch(err => {
+        msg.style.color = "red";
+        msg.innerText = "❌ " + err.message;
+    });
+}
+    function actuallyStartExam() {
+        loadQuestionsFromBackend();
+    }
+function triggerWarning(message) {
+    warningCount++;
+    console.log("Warning:", message);
+
+    const overlay = document.getElementById("violationOverlay");
+    if (overlay) {
+        overlay.style.display = "block";
+        setTimeout(() => overlay.style.display = "none", 1000);
+    }
+
+    if (warningCount >= 3) {
+        alert("Too many violations. Exam terminated.");
+        location.reload();
+    }
+}
+   async function loadQuestionsFromBackend() {
+    const levelId = localStorage.getItem("examLevelId");
+    const partId = localStorage.getItem("examPartId");
+    const moduleId = localStorage.getItem("examModuleId");
+    const questionSet = localStorage.getItem("questionSet");
+
+    try {
+        // 🛑 URL aur Method change kiya gaya hai aapke naye Controller ke hisaab se
+        const res = await fetch(`${BASE}/api/student/questions/load`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                levelId: levelId,
+                partId: partId,
+                moduleId: moduleId,
+                questionSet: questionSet
+            })
+        });
+
+        if (!res.ok) throw new Error("Failed to load questions");
+
+        questions = await res.json();
+        
+        if (questions.length === 0) { 
+            alert("No questions found for this set."); 
+            return; 
+        }
+        isExamActive = true; 
+        startMonitoring();
+        currentIndex = 0; // Reset index
+        renderQuestion();
+        // --- TIME FETCH & TIMER START ---
+        const configRes = await fetch('http://localhost:8080/api/exam/current');
+        const configData = await configRes.json();
+        const minutesFromAdmin = parseInt(configData.timeLimit) || 60; 
+
+        setupTimerUI(); // Timer ka circle banane ke liye
+        startCountdown(minutesFromAdmin); // Countdown shuru karne ke liye
+    } catch(e) { 
+        console.error(e);
+        alert("Error loading questions: " + e.message); 
+    }
+}
+let examTimer; // Global variable timer rokne ke liye
+
+function setupTimerUI() {
+    const style = document.createElement('style');
+    style.innerHTML = `
+        #timer-circle {
+            position: fixed; top: 20px; right: 20px; width: 80px; height: 80px;
+            background: rgba(0,0,0,0.8); border: 3px solid #00d2ff; border-radius: 50%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 10000; color: white; font-family: sans-serif; box-shadow: 0 0 15px #00d2ff55;
+        }
+    `;
+    document.head.appendChild(style);
+    const div = document.createElement('div');
+    div.id = 'timer-circle';
+    div.innerHTML = `<small style="font-size:9px;color:#00d2ff">LEFT</small><span id="t-txt" style="font-size:18px;font-weight:bold">00:00</span>`;
+    document.body.appendChild(div);
+}
+
+function startCountdown(mins) {
+    let timeLeft = mins * 60;
+    examTimer = setInterval(() => {
+        let m = Math.floor(timeLeft / 60);
+        let s = timeLeft % 60;
+        document.getElementById('t-txt').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        
+        if (timeLeft <= 0) {
+            clearInterval(examTimer);
+            alert("Time's up! Submitting...");
+            submitExam(true); // Auto-submit call
+        }
+        timeLeft--;
+    }, 1000);
+}
+    function saveAnswer(qId, val) {
+        userAnswers[qId] = val;
+    }
+    function renderQuestion() {
+    const q = questions[currentIndex];
+    let savedValue = userAnswers[q.id] || "";
+    let answerHTML = "";
+
+    // Design according to Question Type
+    if (q.type === "MCQ") {
+        // --- MCQ DESIGN ---
+        answerHTML = `
+            <div style="display: grid; gap: 15px; margin-top: 20px;">
+                ${['A', 'B', 'C', 'D'].map(opt => `
+                    <label style="background: rgba(255,255,255,0.08); padding: 15px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; transition: 0.3s; border: 1px solid rgba(255,255,255,0.1);" 
+                           onmouseover="this.style.background='rgba(0,210,255,0.1)'" 
+                           onmouseout="this.style.background='rgba(255,255,255,0.08)'">
+                        <input type="radio" name="ans" style="margin-right: 15px; transform: scale(1.2);" 
+                               onchange="saveAnswer(${q.id}, '${opt}')" ${savedValue === opt ? 'checked' : ''}> 
+                        <span style="color: #eee;">${q['option' + opt]}</span>
+                    </label>
+                `).join('')}
+            </div>
+        `;
+
+    } else if (q.type === "CODING") {
+        // --- CODING DESIGN ---
+        // Yaha hum language select karne ka option bhi de rahe hain
+        answerHTML = `
+            <div style="background: #1e1e1e; border-radius: 12px; border: 1px solid #333; overflow: hidden;">
+                <div style="background: #2d2d2d; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: #00d2ff; font-size: 13px; font-family: monospace;">main.code</span>
+                    <select id="lang-${q.id}" style="background: #444; color: white; border: none; padding: 4px 10px; border-radius: 4px; font-size: 12px;">
+                        <option>Java</option>
+                        <option>Python</option>
+                        <option>C++</option>
+                        <option>JavaScript</option>
+                    </select>
+                </div>
+                <textarea 
+                    oninput="saveAnswer(${q.id}, this.value)" 
+                    placeholder="Write your code here..."
+                    style="width:100%; height:300px; background:#1e1e1e; color:#d4d4d4; padding:20px; font-family:'Courier New', monospace; border:none; outline:none; line-height:1.5; resize: vertical;"
+                >${savedValue}</textarea>
+            </div>
+        `;
+
+    } else {
+        // --- THEORY / NORMAL TEXT DESIGN ---
+        answerHTML = `
+            <div style="position: relative;">
+                <textarea 
+                    oninput="saveAnswer(${q.id}, this.value)" 
+                    placeholder="Type your detailed answer here..."
+                    style="width:100%; height:200px; background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 20px; font-size: 16px; line-height: 1.6; outline: none; transition: 0.3s; box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);"
+                    onfocus="this.style.borderColor='#00d2ff'; this.style.background='rgba(255,255,255,0.08)';"
+                    onblur="this.style.borderColor='rgba(255,255,255,0.2)';"
+                >${savedValue}</textarea>
+                <div style="position: absolute; bottom: 10px; right: 15px; color: rgba(255,255,255,0.3); font-size: 12px;">Theory Response</div>
+            </div>
+        `;
+    }
+
+    // Main Card Rendering
+    document.querySelector(".main-content").innerHTML = `
+        <div class="glass-card" style="max-width:900px; margin:40px auto; padding:40px; background:rgba(20, 20, 20, 0.8); backdrop-filter: blur(10px); color:white; border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+            <div style="display:flex; justify-content:space-between; align-items: flex-start; margin-bottom: 30px;">
+                <div>
+                    <span style="color: #00d2ff; font-weight: bold; letter-spacing: 1px; font-size: 14px;">QUESTION ${currentIndex + 1}</span>
+                    <h2 style="margin: 10px 0; font-weight: 500; line-height: 1.4;">${q.question}</h2>
+                </div>
+                <span style="background: linear-gradient(45deg, #00d2ff, #3a7bd5); padding: 8px 15px; border-radius: 10px; font-size: 14px; font-weight: bold; white-space: nowrap;">${q.marks} Marks</span>
+            </div>
+
+            <div style="margin-bottom: 30px;">${answerHTML}</div>
+
+            <div style="display:flex; justify-content:space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); pt-30px; padding-top: 25px;">
+                <button onclick="prevQ()" style="padding:12px 25px; cursor:pointer; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: white; font-weight: 500; transition: 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">⬅ Previous</button>
+                
+                <div style="color: rgba(255,255,255,0.5); font-size: 14px;">${currentIndex + 1} of ${questions.length}</div>
+
+                ${currentIndex === questions.length - 1 ? 
+                    `<button onclick="submitExam()" style="background:linear-gradient(45deg, #00c853, #b2ff59); color:#003300; padding:12px 35px; border:none; border-radius:12px; cursor:pointer; font-weight:bold; box-shadow: 0 4px 15px rgba(0,200,83,0.3);">FINISH EXAM</button>` : 
+                    `<button onclick="nextQ()" style="padding:12px 35px; cursor:pointer; border-radius: 12px; border: none; background: #00d2ff; color: #003300; font-weight: bold; transition: 0.2s; box-shadow: 0 4px 15px rgba(0,210,255,0.3);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">Next Question ➡</button>`}
+            </div>
+        </div>
+    `;
+}
+
+//     function renderQuestion() {
+//     const q = questions[currentIndex];
+//     let savedValue = userAnswers[q.id] || "";
+//     let answerHTML = "";
+
+//     // 🛑 FIX: 'questionType' ki jagah 'type' use karein (Backend match)
+//     if (q.type === "MCQ") {
+//         answerHTML = `
+//             <label><input type="radio" name="ans" onchange="saveAnswer(${q.id}, 'A')" ${savedValue === 'A' ? 'checked' : ''}> ${q.optionA}</label><br>
+//             <label><input type="radio" name="ans" onchange="saveAnswer(${q.id}, 'B')" ${savedValue === 'B' ? 'checked' : ''}> ${q.optionB}</label><br>
+//             <label><input type="radio" name="ans" onchange="saveAnswer(${q.id}, 'C')" ${savedValue === 'C' ? 'checked' : ''}> ${q.optionC}</label><br>
+//             <label><input type="radio" name="ans" onchange="saveAnswer(${q.id}, 'D')" ${savedValue === 'D' ? 'checked' : ''}> ${q.optionD}</label>
+//         `;
+//     } else {
+//         answerHTML = `<textarea oninput="saveAnswer(${q.id}, this.value)" style="width:100%;height:150px; color: black; padding: 10px;">${savedValue}</textarea>`;
+//     }
+
+//     document.querySelector(".main-content").innerHTML = `
+//         <div class="glass-card" style="max-width:800px; margin:40px auto; padding:30px; background:rgba(255,255,255,0.05); color:white; border-radius: 15px;">
+//             <div style="display:flex; justify-content:space-between; align-items: center; margin-bottom: 20px;">
+//                 <h3 style="margin:0;">Q${currentIndex + 1}. ${q.question}</h3>
+//                 <span style="background: rgba(0,210,255,0.2); padding: 5px 12px; border-radius: 20px; font-size: 14px;">${q.marks} Marks</span>
+//             </div>
+//             <div style="margin:20px 0; line-height: 1.8;">${answerHTML}</div>
+//             <div style="display:flex; justify-content:space-between; margin-top: 30px;">
+//                 <button onclick="prevQ()" style="padding:10px 25px; cursor:pointer; border-radius: 8px; border: 1px solid #444; background: #222; color: white;">⬅ Prev</button>
+//                 ${currentIndex === questions.length - 1 ? 
+//                     '<button onclick="submitExam()" style="background:linear-gradient(45deg, #28a745, #218838); color:white; padding:10px 30px; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">SUBMIT EXAM</button>' : 
+//                     '<button onclick="nextQ()" style="padding:10px 25px; cursor:pointer; border-radius: 8px; border: none; background: #00d2ff; color: white;">Next ➡</button>'}
+//             </div>
+//         </div>
+//     `;
+// }
+
+    function nextQ() { if (currentIndex < questions.length - 1) { currentIndex++; renderQuestion(); } }
+    function prevQ() { if (currentIndex > 0) { currentIndex--; renderQuestion(); } }
+    
+async function submitExam(isAuto = false) { // <--- 1. Yahan (isAuto = false) zaroor add karein
+    
+    // 2. Purani confirm line ki jagah ye 3 lines:
+    if (isAuto !== true) {
+        if (!confirm("Confirm submission? You cannot undo this.")) return;
+    }
+
+    // 3. Timer ko rokne ke liye ye lines:
+    if (typeof examTimer !== 'undefined') {
+        clearInterval(examTimer);
+    }
+    const attemptId = localStorage.getItem("attemptId");
+
+    if (!attemptId) {
+        alert("Session expired. Please start the exam again.");
+        location.reload();
+        return;
+    }
+
+    const formattedAnswers = Object.keys(userAnswers).map(qId => ({
+        questionId: parseInt(qId),
+        answerText: userAnswers[qId] || ""
+    }));
+
+    // Loading State
+    document.querySelector(".main-content").innerHTML = `
+        <div style="text-align:center; margin-top:100px; color:white;">
+            <h2>🤖 AI is grading your answers...</h2>
+            <p>Please do not refresh the page.</p>
+        </div>`;
+
+    try {
+        const res = await fetch(`${BASE}/api/student/exam/submit`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                attemptId,
+                answers: formattedAnswers
+            })
+        });
+
+        const result = await res.json();
+localStorage.setItem("attemptId", result.attemptId);
+
+
+        if (res.ok) {
+            isExamActive = false; // Stop AI camera / proctoring
+
+            document.querySelector(".main-content").innerHTML = `
+                <div class="glass-card"
+                     style="max-width:600px; margin:100px auto; text-align:center;
+                            padding:50px; background:rgba(0,210,255,0.1);
+                            border-radius:20px; border:1px solid #00d2ff;">
+                    <h1 style="font-size:50px;">🎉</h1>
+                    <h2 style="color:white;">Exam Submitted Successfully!</h2>
+                    <p style="color:#ccc;">
+                        ${result.message || "Your exam has been submitted successfully."}
+                    </p>
+                    <button onclick="location.href='dashboard.html'"
+                        style="margin-top:20px; padding:12px 30px;
+                               background:#00d2ff; border:none;
+                               border-radius:10px; cursor:pointer;
+                               font-weight:bold;">
+                        Go to Dashboard
+                    </button>
+                </div>`;
+        } else {
+            alert("❌ Error: " + result.message);
+            renderQuestion(); // show questions again
+        }
+
+    } catch (err) {
+        alert("❌ Failed to connect to AI Grading Service.");
+        renderQuestion();
+    }
+}
+
+</script>
+   <script src="concept-analytics.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
